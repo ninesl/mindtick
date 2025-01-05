@@ -80,3 +80,11 @@ func createSchema(db *sql.DB) error {
 	}
 	return nil
 }
+
+func Delete() error {
+	err := os.Remove(dbFileName)
+	if err != nil {
+		return fmt.Errorf("failed to delete: %v", err)
+	}
+	return nil
+}
