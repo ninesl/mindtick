@@ -1,8 +1,11 @@
 BINARY=mindtick
-.DEFAULT_GOAL := all
-.PHONY: fmt vet build run run-bin all
+.DEFAULT_GOAL := default
+.PHONY: tidy fmt vet build run run-bin all
 
-all: fmt vet build run-bin
+default: tidy fmt vet build
+
+tidy:
+	@go mod tidy
 
 fmt:
 	@go fmt ./...
