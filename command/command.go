@@ -13,8 +13,7 @@ var useHelpMsg = fmt.Sprintf("use %s for more information\n", messages.ColorizeS
 
 func helpLine(command, description string) string {
 	return fmt.Sprintf(
-		"%s%s\t%s\n",
-		messages.ColorizeStr("  ", messages.BrightGreen),
+		"%10s\t%s\n",
 		messages.ColorizeStr(command, messages.BrightGreen),
 		description,
 	)
@@ -22,9 +21,9 @@ func helpLine(command, description string) string {
 
 func help() {
 	var sb strings.Builder
-	sb.WriteString("Usage: ")
+	sb.WriteString("Usage\n")
 	sb.WriteString(messages.ColorizeStr("mindtick <command>\n", messages.BrightGreen))
-	sb.WriteString("Commands:\n")
+	sb.WriteString("\nCommands\n")
 	sb.WriteString(helpLine("new", "Create a new mindtick file in the current directory"))
 	sb.WriteString(helpLine("delete", "Delete the mindtick file in the current directory"))
 	sb.WriteString(helpLine("help", "Display this help message"))
@@ -47,7 +46,13 @@ func ProcessArgs() {
 		}
 		fmt.Println(messages.ColorizeStr("mindtick intialized", messages.BrightPurple))
 	case "delete":
-		// err := store.Delete()
+		err := store.Delete()
+		if err != nil {
+			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+			return
+		} else {
+			fmt.Println(messages.ColorizeStr("mindtick deleted", messages.BrightPurple))
+		}
 	case "help":
 		help()
 	default:
