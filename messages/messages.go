@@ -107,7 +107,7 @@ func renderTitle(msgType MessageType, bgOnly bool) string {
 	return title
 }
 
-func renderMsg(msg Message, bgOnly bool) string {
+func RenderMsg(msg Message, bgOnly bool) string {
 	var (
 		title = renderTitle(msg.MsgType, bgOnly)
 		time  = renderTime(msg.Timestamp)
@@ -137,9 +137,9 @@ func RenderMessages(msgs ...Message) {
 
 		if curType != msgs[i].MsgType {
 			curType = msgs[i].MsgType
-			fmt.Println(renderMsg(msgs[i], BGTITLE))
+			fmt.Println(RenderMsg(msgs[i], BGTITLE))
 		} else {
-			fmt.Println(renderMsg(msgs[i], ONLYBG))
+			fmt.Println(RenderMsg(msgs[i], ONLYBG))
 		}
 	}
 }
