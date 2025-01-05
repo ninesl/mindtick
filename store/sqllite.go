@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ninesl/mindtick/messages"
 	_ "modernc.org/sqlite"
 	//https://pkg.go.dev/modernc.org/sqlite?utm_source=godoc
 )
@@ -85,6 +86,20 @@ func Delete() error {
 	err := os.Remove(dbFileName)
 	if err != nil {
 		return fmt.Errorf("failed to delete: %v", err)
+	}
+	return nil
+}
+
+func AddMessage(message messages.Message) error {
+	db, err := loadMindtick()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec("INSERT INTO messages (timestamp, msg, msgtype) VALUES (?, ?, ?)", message.Timestamp, message.Msg, message.MsgType)
+	if err != nil {
+		return fmt.Errorf("unable to add message: %v", err)
 	}
 	return nil
 }
