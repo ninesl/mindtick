@@ -26,6 +26,7 @@ func help() {
 	sb.WriteString(messages.ColorizeStr("mindtick <command>\n", messages.BrightGreen))
 	sb.WriteString("Commands:\n")
 	sb.WriteString(helpLine("new", "Create a new mindtick file in the current directory"))
+	sb.WriteString(helpLine("delete", "Delete the mindtick file in the current directory"))
 	sb.WriteString(helpLine("help", "Display this help message"))
 
 	fmt.Print(sb.String())
@@ -39,10 +40,17 @@ func ProcessArgs() {
 
 	switch os.Args[1] {
 	case "new":
-		store.New()
+		err := store.New()
+		if err != nil {
+			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+			return
+		}
+		fmt.Println(messages.ColorizeStr("mindtick intialized", messages.BrightPurple))
+	case "delete":
+		// err := store.Delete()
 	case "help":
 		help()
 	default:
-		fmt.Printf("Unknown command %s, %s", os.Args[1], useHelpMsg)
+		fmt.Printf("unknown mindtick argument %s, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
 	}
 }

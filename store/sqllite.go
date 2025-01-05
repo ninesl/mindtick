@@ -2,7 +2,7 @@ package store
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 	"os"
 
 	_ "modernc.org/sqlite"
@@ -11,10 +11,10 @@ import (
 
 const dbFileName = "store.mindtick"
 
-func loadMindtick() *sql.DB {
+func loadMindtick() (*sql.DB, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Failed to get current directory: %v", err)
+		return nil, fmt.Errorf("unable to get access to directory: %v", err)
 	}
 
 	for {
@@ -22,51 +22,52 @@ func loadMindtick() *sql.DB {
 		if _, err := os.Stat(dbPath); err == nil {
 			db, err := sql.Open("sqlite", dbPath)
 			if err != nil {
-				log.Fatalf("found mindtick, unable to load. Is the file corrupted? - %v", err)
+				return nil, fmt.Errorf("unable to open %s. Is the file corrupted? %v", dbFileName, err)
 			}
-			return db
+			return db, nil
 		}
 
 		parentDir := dir + string(os.PathSeparator) + ".."
 		if parentDir == dir {
-			log.Fatalf("mindtick file not found. Make sure to run `mindtick new` first")
+			return nil, fmt.Errorf("%s file not found", dbFileName)
 		}
 		dir = parentDir
 	}
+	// return nil, fmt.Errorf("mindtick file not found. you shouldn't have gotten here")
 }
 
 // `mindtick new` command
-func New() {
+func New() error {
 	// Verify if file exists
 	if _, err := os.Stat(dbFileName); os.IsNotExist(err) {
-		log.Printf("Creating new mindtick in currrent directory\n")
-		// fmt.Println()
+		// do nothing
 	} else {
-		log.Printf("%s already exists in this directory", dbFileName)
-		return
+		return fmt.Errorf("%s already exists", dbFileName)
 	}
 
-	// else create new file
 	file, err := os.Create(dbFileName)
 	if err != nil {
-		log.Fatalf("Failed to create file: %v", err)
+		return fmt.Errorf("failed to create %s %v", dbFileName, err)
 	}
 	defer file.Close()
+
 	// setup database schema
-	db := loadMindtick()
+	db, err := loadMindtick()
+	if err != nil {
+		return err
+	}
 	createSchema(db)
 
-	// log to user that file is created
-	log.Printf("New mindtick created under %s\n", dbFileName)
+	return nil
 }
 
-func createSchema(db *sql.DB) {
+func createSchema(db *sql.DB) error {
 	// schema is
 	// messages
 	// 	id - serial
 	// 	timestamp - time
 	// 	msg - string
-	// 	msgtype - int enums
+	// 	msgtype - int enums in messages.go
 
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS messages (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,7 +76,7 @@ func createSchema(db *sql.DB) {
 		msgtype INT
 	)`)
 	if err != nil {
-		log.Fatalf("Failed to create mindtick schema: %v", err)
+		return fmt.Errorf("unable to create mindtick schema: %v", err)
 	}
-
+	return nil
 }
