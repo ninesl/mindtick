@@ -7,26 +7,26 @@ import (
 
 // bright purple, cyan, green, yellow
 var (
-	winTitle  = colorizeStr("win", bold, green, greenBg)
-	noteTitle = colorizeStr("note", bold, cyan, cyanBg)
-	fixTitle  = colorizeStr("fix", bold, yellow, yellowBg)
+	winTitle  = ColorizeStr("win", Bold, Green, GreenBg)
+	noteTitle = ColorizeStr("note", Bold, Cyan, CyanBg)
+	fixTitle  = ColorizeStr("fix", Bold, Yellow, YellowBg)
 
-	redTitle          = colorizeStr("red", bold, red, redBg)
-	blackTitle        = colorizeStr("black", bold, blackBg)
-	whiteTitle        = colorizeStr("white", bold, whiteBg)
-	greenTitle        = colorizeStr("green", bold, green, greenBg)
-	yellowTitle       = colorizeStr("yellow", bold, yellow, yellowBg)
-	blueTitle         = colorizeStr("blue", bold, blue, blueBg)
-	purpleTitle       = colorizeStr("purple", bold, purple, purpleBg)
-	cyanTitle         = colorizeStr("cyan", bold, cyan, cyanBg)
-	brightBlackTitle  = colorizeStr("brightBlack", bold, brightBlack, brightBlackBg)
-	brightRedTitle    = colorizeStr("brightRed", bold, brightRed, brightRedBg)
-	brightGreenTitle  = colorizeStr("brightGreen", bold, brightGreen, brightGreenBg)
-	brightYellowTitle = colorizeStr("brightYellow", bold, brightYellow, brightYellowBg)
-	brightBlueTitle   = colorizeStr("brightBlue", bold, brightBlue, brightBlueBg)
-	brightPurpleTitle = colorizeStr("brightPurple", bold, brightPurple, brightPurpleBg)
-	brightCyanTitle   = colorizeStr("brightCyan", bold, brightCyan, brightCyanBg)
-	brightWhiteTitle  = colorizeStr("brightWhite", bold, brightWhite, brightWhiteBg)
+	redTitle          = ColorizeStr("red", Bold, Red, RedBg)
+	blackTitle        = ColorizeStr("black", Bold, BlackBg)
+	whiteTitle        = ColorizeStr("white", Bold, WhiteBg)
+	greenTitle        = ColorizeStr("green", Bold, Green, GreenBg)
+	yellowTitle       = ColorizeStr("yellow", Bold, Yellow, YellowBg)
+	blueTitle         = ColorizeStr("blue", Bold, Blue, BlueBg)
+	purpleTitle       = ColorizeStr("purple", Bold, Purple, PurpleBg)
+	cyanTitle         = ColorizeStr("cyan", Bold, Cyan, CyanBg)
+	brightBlackTitle  = ColorizeStr("brightBlack", Bold, BrightBlack, BrightBlackBg)
+	brightRedTitle    = ColorizeStr("brightRed", Bold, BrightRed, BrightRedBg)
+	brightGreenTitle  = ColorizeStr("brightGreen", Bold, BrightGreen, BrightGreenBg)
+	brightYellowTitle = ColorizeStr("brightYellow", Bold, BrightYellow, BrightYellowBg)
+	brightBlueTitle   = ColorizeStr("brightBlue", Bold, BrightBlue, BrightBlueBg)
+	brightPurpleTitle = ColorizeStr("brightPurple", Bold, BrightPurple, BrightPurpleBg)
+	brightCyanTitle   = ColorizeStr("brightCyan", Bold, BrightCyan, BrightCyanBg)
+	brightWhiteTitle  = ColorizeStr("brightWhite", Bold, BrightWhite, BrightWhiteBg)
 )
 
 func PrintAllTitles() {
@@ -60,7 +60,7 @@ func renderTime(t time.Time) string {
 	time := t.Format("03:04 PM")
 
 	tStr := fmt.Sprintf("[ %8s ]", time)
-	tStr = colorizeStr(tStr, brightBlack)
+	tStr = ColorizeStr(tStr, BrightBlack)
 	return tStr
 }
 
@@ -94,7 +94,7 @@ func renderMsg(msg Message) string {
 
 func renderDate(d time.Time) string {
 	date := fmt.Sprintf("[ %s ]", d.Format("Jan 02, 2006"))
-	date = colorizeStr(date, brightPurple)
+	date = ColorizeStr(date, BrightPurple)
 	return date
 }
 
