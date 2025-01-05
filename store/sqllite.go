@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/ninesl/mindtick/messages"
 	_ "modernc.org/sqlite"
@@ -12,7 +13,7 @@ import (
 
 const dbFileName = "store.mindtick"
 
-func loadMindtick() (*sql.DB, error) {
+func LoadMindtick() (*sql.DB, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("unable to get access to directory: %v", err)
@@ -20,6 +21,7 @@ func loadMindtick() (*sql.DB, error) {
 
 	for {
 		dbPath := dir + string(os.PathSeparator) + dbFileName
+		// fmt.Println("Checking", dbPath)
 		if _, err := os.Stat(dbPath); err == nil {
 			db, err := sql.Open("sqlite", dbPath)
 			if err != nil {
@@ -29,8 +31,12 @@ func loadMindtick() (*sql.DB, error) {
 		}
 
 		parentDir := dir + string(os.PathSeparator) + ".."
+		parentDir, err = filepath.Abs(parentDir)
+		if err != nil {
+			return nil, fmt.Errorf("unable to resolve parent directory: %v", err)
+		}
 		if parentDir == dir {
-			return nil, fmt.Errorf("%s file not found", dbFileName)
+			return nil, fmt.Errorf("%s file not found\n%s to create a new mindtick", dbFileName, messages.ColorizeStr("mindtick new", messages.BrightGreen))
 		}
 		dir = parentDir
 	}
@@ -53,7 +59,7 @@ func New() error {
 	defer file.Close()
 
 	// setup database schema
-	db, err := loadMindtick()
+	db, err := LoadMindtick()
 	if err != nil {
 		return err
 	}
@@ -90,16 +96,32 @@ func Delete() error {
 	return nil
 }
 
-func AddMessage(message messages.Message) error {
-	db, err := loadMindtick()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	_, err = db.Exec("INSERT INTO messages (timestamp, msg, msgtype) VALUES (?, ?, ?)", message.Timestamp, message.Msg, message.MsgType)
+func AddMessage(db *sql.DB, message messages.Message) error {
+	_, err := db.Exec("INSERT INTO messages (timestamp, msg, msgtype) VALUES (?, ?, ?)", message.Timestamp, message.Msg, message.MsgType)
 	if err != nil {
 		return fmt.Errorf("unable to add message: %v", err)
 	}
 	return nil
+}
+
+func GetMessages(db *sql.DB) ([]messages.Message, error) {
+	rows, err := db.Query("SELECT * FROM messages ORDER BY timestamp DESC")
+	if err != nil {
+		return nil, fmt.Errorf("unable to select messages: %v", err)
+	}
+	defer rows.Close()
+
+	var msgs []messages.Message
+	for rows.Next() {
+		var msg messages.Message
+		err := rows.Scan(&msg.ID, &msg.Timestamp, &msg.Msg, &msg.MsgType)
+		if err != nil {
+			return nil, fmt.Errorf("unable to read message: %v", err)
+		}
+		msgs = append(msgs, msg)
+	}
+	if len(msgs) == 0 {
+		return nil, fmt.Errorf("no messages found")
+	}
+	return msgs, nil
 }
