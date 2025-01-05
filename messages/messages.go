@@ -49,11 +49,15 @@ const (
 	FIX
 )
 
+// id INTEGER PRIMARY KEY AUTOINCREMENT,
+// timestamp DATETIME,
+// msg TEXT,
+// msgtype INT
 type Message struct {
-	Timestamp time.Time
-	Msg       string
-	ID        int
-	MsgType   MessageType
+	Timestamp time.Time   `db:"timestamp"`
+	Msg       string      `db:"msg"`
+	ID        int         `db:"id"`
+	MsgType   MessageType `db:"msgtype"`
 }
 
 func renderTime(t time.Time) string {
