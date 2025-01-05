@@ -11,7 +11,7 @@ import (
 
 var (
 	useHelpMsg    = fmt.Sprintf("use %s for more information\n", messages.ColorizeStr("mindtick help", messages.BrightGreen))
-	messagePrefix = '>'
+	messagePrefix = "-" // how to ignore =:zsh or >:newfile, etc? custom prefix?
 )
 
 func helpLine(command, description string) string {
@@ -20,6 +20,20 @@ func helpLine(command, description string) string {
 		messages.ColorizeStr(command, messages.BrightGreen),
 		description,
 	)
+}
+
+/*
+unsure if this true/false is a good way to handle errors
+
+	returns `true` if there was an error, prints the error
+	returns `false` if there was no error
+*/
+func isHandleGenericError(err error) bool {
+	if err != nil {
+		fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+		return true
+	}
+	return false
 }
 
 func help() {
@@ -64,21 +78,38 @@ func ProcessArgs() {
 	case "task":
 	case "note":
 	case "fix":
-		processMessage()
+		err := processMessage()
+		if !isHandleGenericError(err) {
+			return
+		}
+	case "view":
+		// db, err := store.LoadMindtick()
+		// if err != nil {
+		// 	fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+		// 	return
+		// }
+		// msgs, err := store.GetMessages(db) // TODO: view by date, type, etc
+		// if err != nil {
+		// 	fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+		// 	return
+		// }
 	default:
 		fmt.Printf("unknown mindtick argument %s, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
 	}
 }
 
-func processMessage() {
-	if len(os.Args) < 3 {
-		fmt.Printf("mindtick %s must have a message, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
-		return
+func processMessage() error {
+	db, err := store.LoadMindtick()
+	if err != nil {
+		return err
 	}
-	if rune(os.Args[2][0]) != messagePrefix {
-		tip := fmt.Sprintf("mindtick %s >{your message here}", os.Args[1])
-		fmt.Printf("mindtick messages must start with >. example usage: %s\n%s", messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
-		return
+
+	if len(os.Args) < 3 {
+		return fmt.Errorf("mindtick %s must have a message, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
+	}
+	if os.Args[2][0:1] != messagePrefix {
+		tip := fmt.Sprintf("mindtick %s %v{your message here}", os.Args[1], messagePrefix)
+		return fmt.Errorf("mindtick messages must start with %v. example usage: %s\n%s", messagePrefix, messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
 	}
 	// concat all arguments after the msgType
 	var argMsgs []string
@@ -89,12 +120,19 @@ func processMessage() {
 	argMsg = strings.Replace(argMsg, ">", "", 1) // remove the > from the beginning
 	msg, err := messages.NewMessage(os.Args[1], argMsg)
 	if err != nil {
-		fmt.Printf("%s, %s", messages.ColorizeStr(err.Error(), messages.BrightRed), useHelpMsg)
-		return
+		return fmt.Errorf("%s, %s", messages.ColorizeStr(err.Error(), messages.BrightRed), useHelpMsg)
 	}
-	err = store.AddMessage(msg)
+
+	err = store.AddMessage(db, msg)
 	if err != nil {
-		fmt.Printf("%s, %s", messages.ColorizeStr(err.Error(), messages.BrightRed), useHelpMsg)
-		return
+		return fmt.Errorf("%s, %s", messages.ColorizeStr(err.Error(), messages.BrightRed), useHelpMsg)
 	}
+
+	//check to see if message was added
+	//	get the id, check if id exists, if true
+	//	print message (msg not loading the whole msg from the DB)
+	// else
+	// 	return error
+	fmt.Println(messages.RenderMsg(msg, false))
+	return nil
 }
