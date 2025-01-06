@@ -41,9 +41,15 @@ func help() {
 	sb.WriteString("Usage\n")
 	sb.WriteString(messages.ColorizeStr("mindtick <command>\n", messages.BrightGreen))
 	sb.WriteString("\nCommands\n")
+	sb.WriteString(helpLine("help", "Display this help message"))
 	sb.WriteString(helpLine("new", "Create a new mindtick file in the current directory"))
 	sb.WriteString(helpLine("delete", "Delete the mindtick file in the current directory"))
-	sb.WriteString(helpLine("help", "Display this help message"))
+	sb.WriteString(helpLine("view", "Display all messages in the mindtick file"))
+	//TODO: win/note/fix/task into a map or something
+	sb.WriteString(helpLine("win", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.WIN, false))))
+	sb.WriteString(helpLine("note", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.NOTE, false))))
+	sb.WriteString(helpLine("fix", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.FIX, false))))
+	sb.WriteString(helpLine("task", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.TASK, false))))
 
 	fmt.Print(sb.String())
 }
