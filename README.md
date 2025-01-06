@@ -1,4 +1,4 @@
-#### About
+## About
 
 Mindtick is a lightweight CLI tool designed to help you track your progress, tasks, and accomplishments in a structured, timestamped log. With Mindtick, you can easily log your wins, notes, fixes, and tasks to maintain a clear and organized timeline of your work.
 
@@ -11,6 +11,8 @@ Each entry in the `store.mindtick` file is recorded with:
 
 When you run a `mindtick` command, the tool searches for the `store.mindtick` file starting from your current directory and traversing up the directory tree. This means that you can use Mindtick from any subdirectory of your project, and the tool will always find and operate on the nearest `store.mindtick` file.
 
+NOTE: The ANSI colors only work in terminals that support it, if you were to use this with Windows Powershell or Command Prompt you will see the ANSI escape codes as plaintext. So I recommend to not do this on windows or use another terminal! (Works great in the integrated vscode terminal on all OS's)
+
 ## Installation
 
 Make sure you have the most recent version of go installed *(1.24.4 at the time of writing)*
@@ -21,7 +23,20 @@ After go has been installed, run `go get github.com/ninesl/mindtick@latest`
 
 If your `$PATH` variables are setup correctly *(will be by default)* run `mindtick` in a new terminal window to ensure Mindtick was installed correctly.
 
-NOTE: ANSI color escape codes are used to color code tags and messages in Mindtick. Make sure you are using a terminal that supports this type of text rendering (the default Windows Powershell and Command Prompt do not)
+NOTE: ANSI color escape codes are used to color code tags and messages in Mindtick. Make sure you are using a terminal that supports this type of text rendering (the default Windows Powershell and Command Prompt do not) It works great in the integrated VSCode terminal!
+
+## Why make this instead of a todo.txt?
+
+I made this project because I have been having difficulties when I'm explaining to my non-technical clients what I've been working on.
+
+This is really helpful for me to get an overview of my progress/what I've been doing in a project because of the timestamps on each message being sent to Mindtick. 
+
+While `todo.txt` is extremely simple for task tracking, this tool is more personal and thought-driven. I think of it as a changelog for your mind. It's not just about tasks, it's about documenting your mental journey. Just remember to use it consistently!
+
+## Suggested Use
+
+run `mindtick new` to create a new `store.mindtick` in your project's root directory. If a `.gitignore` file is found, `store.mindtick` gets appended to `.gitignore`
+
 
 ## Commands
 
