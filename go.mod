@@ -1,6 +1,6 @@
 module github.com/ninesl/mindtick
 
-go 1.22.6
+go 1.23.4
 
 require modernc.org/sqlite v1.34.4
 
