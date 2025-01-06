@@ -23,8 +23,6 @@ After go has been installed, run `go get github.com/ninesl/mindtick@latest`
 
 If your `$PATH` variables are setup correctly *(will be by default)* run `mindtick` in a new terminal window to ensure Mindtick was installed correctly.
 
-NOTE: ANSI color escape codes are used to color code tags and messages in Mindtick. Make sure you are using a terminal that supports this type of text rendering (the default Windows Powershell and Command Prompt do not) It works great in the integrated VSCode terminal!
-
 ## Why make this instead of a todo.txt?
 
 I made this project because I have been having difficulties when I'm explaining to my non-technical clients what I've been working on.
