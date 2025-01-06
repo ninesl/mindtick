@@ -19,7 +19,7 @@ You can find the most recent release of go here: https://go.dev/dl/
 
 After go has been installed, run `go get github.com/ninesl/mindtick@latest`
 
-If your `$PATH` variables are setup correctly *(will be by default)*
+If your `$PATH` variables are setup correctly *(will be by default)* run `mindtick` in a new terminal window to ensure Mindtick was installed correctly.
 
 NOTE: ANSI color escape codes are used to color code tags and messages in Mindtick. Make sure you are using a terminal that supports
 this type of text rendering (the default Windows Powershell and Commandprompt do not)
