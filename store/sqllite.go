@@ -117,7 +117,7 @@ func AddMessage(db *sql.DB, message messages.Message) error {
 }
 
 func GetMessages(db *sql.DB) ([]messages.Message, error) {
-	rows, err := db.Query("SELECT * FROM messages ORDER BY timestamp DESC")
+	rows, err := db.Query("SELECT * FROM messages ORDER BY timestamp")
 	if err != nil {
 		return nil, fmt.Errorf("unable to select messages: %v", err)
 	}
