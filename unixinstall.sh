@@ -10,6 +10,7 @@ if [ ! -w $DEST_DIR ]; then
 fi
 
 # Copy the binary to the destination directory
+rm -f $DEST_DIR/$BINARY_NAME
 cp $BINARY_NAME $DEST_DIR/
 
 # Make it executable
