@@ -93,7 +93,7 @@ func renderTime(t time.Time) string {
 	return tStr
 }
 
-func renderTitle(msgType MessageType, bgOnly bool) string {
+func RenderTitle(msgType MessageType, bgOnly bool) string {
 	var title string
 
 	if bgOnly {
@@ -109,7 +109,7 @@ func renderTitle(msgType MessageType, bgOnly bool) string {
 
 func RenderMsg(msg Message, bgOnly bool) string {
 	var (
-		title = renderTitle(msg.MsgType, bgOnly)
+		title = RenderTitle(msg.MsgType, bgOnly)
 		time  = renderTime(msg.Timestamp)
 	)
 
