@@ -154,7 +154,6 @@ func processMessage() error {
 	}
 
 	var argMsg = strings.Join(argMsgs, " ")
-	argMsg = strings.Replace(argMsg, ">", "", 1) // remove the > from the beginning
 	msg, err := messages.NewMessage(os.Args[1], argMsg)
 	if err != nil {
 		return fmt.Errorf("%s, %s", messages.ColorizeStr(err.Error(), messages.BrightRed), useHelpMsg)
