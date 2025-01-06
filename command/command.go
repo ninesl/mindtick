@@ -44,9 +44,13 @@ func isHandleGenericError(err error) bool {
 	return false
 }
 
+const version = "v0.1.1"
+
 func help() {
 	var sb strings.Builder
-	sb.WriteString("Usage\n")
+	versionStr := fmt.Sprintf("mindtick %s", version)
+	sb.WriteString(messages.ColorizeStr(versionStr, messages.Bold, messages.BrightRedBg))
+	sb.WriteString("\nUsage\n")
 	sb.WriteString(messages.ColorizeStr("mindtick <command>\n", messages.BrightGreen))
 	sb.WriteString("\nCommands\n")
 	sb.WriteString(helpLine("help", "Display this help message"))
