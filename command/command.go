@@ -117,7 +117,7 @@ func processMessage() error {
 		return fmt.Errorf("mindtick messages must start with %v. example usage: %s\n%s", messagePrefix, messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
 	}
 
-	fmt.Println(os.Args)
+	// fmt.Println(os.Args)
 	os.Args[2] = strings.Replace(os.Args[2], messagePrefix, "", 1)
 
 	// concat all arguments after the msgType
