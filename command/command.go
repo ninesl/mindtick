@@ -59,7 +59,7 @@ func help() {
 	sb.WriteString(helpLine("fix", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.FIX, false))))
 	sb.WriteString(helpLine("task", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.TASK, false))))
 	sb.WriteString("\nPlanned Features\n")
-	sb.WriteString(plannedFeatureLine("search {tags}", "Display all messages based off specific tags"))
+	sb.WriteString(plannedFeatureLine("view {tags}", "Display all messages based off specific tags"))
 	sb.WriteString(plannedFeatureLine("export {tags} {filetype}", "Export all messages to a .pdf/csv/txt file based off specific tags"))
 	sb.WriteString(plannedFeatureLine("delete <id>", "Delete a message by id"))
 	sb.WriteString(plannedFeatureLine("edit <id> <new message>", "Edit a message by id"))
