@@ -30,7 +30,7 @@ unsure if this true/false is a good way to handle errors
 */
 func isHandleGenericError(err error) bool {
 	if err != nil {
-		fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+		fmt.Print(messages.ColorizeStr(err.Error(), messages.BrightRed))
 		return true
 	}
 	return false
@@ -54,8 +54,13 @@ func ProcessArgs() {
 		return
 	}
 
+	// fmt.Println(os.Args[1])
+
 	switch os.Args[1] {
 	case "new":
+		if len(os.Args) > 2 {
+			fmt.Printf("%s does not take any arguments, %s", messages.ColorizeStr("mindtick new", messages.BrightGreen), useHelpMsg)
+		}
 		err := store.New()
 		if err != nil {
 			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
@@ -63,6 +68,9 @@ func ProcessArgs() {
 		}
 		fmt.Println(messages.ColorizeStr("mindtick intialized", messages.BrightPurple))
 	case "delete":
+		if len(os.Args) > 2 {
+			fmt.Printf("%s does not take any arguments, %s", messages.ColorizeStr("mindtick delete", messages.BrightGreen), useHelpMsg)
+		}
 		err := store.Delete()
 		if err != nil {
 			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
@@ -73,26 +81,23 @@ func ProcessArgs() {
 	case "help":
 		help()
 
-	// list of note commands is hard to maintain and extend with current implementation
-	case "win": // new note, usage is like `mindtick {msgType} "note content"`
-	case "task":
-	case "note":
-	case "fix":
+	case "win", "task", "note", "fix": // combine all message types into a single case
 		err := processMessage()
 		if !isHandleGenericError(err) {
 			return
 		}
 	case "view":
-		// db, err := store.LoadMindtick()
-		// if err != nil {
-		// 	fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-		// 	return
-		// }
-		// msgs, err := store.GetMessages(db) // TODO: view by date, type, etc
-		// if err != nil {
-		// 	fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-		// 	return
-		// }
+		db, err := store.LoadMindtick()
+		if err != nil {
+			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+			return
+		}
+		msgs, err := store.GetMessages(db) // TODO: view by date, type, etc
+		if err != nil {
+			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+			return
+		}
+		messages.RenderMessages(msgs...)
 	default:
 		fmt.Printf("unknown mindtick argument %s, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
 	}
@@ -111,11 +116,16 @@ func processMessage() error {
 		tip := fmt.Sprintf("mindtick %s %v{your message here}", os.Args[1], messagePrefix)
 		return fmt.Errorf("mindtick messages must start with %v. example usage: %s\n%s", messagePrefix, messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
 	}
+
+	fmt.Println(os.Args)
+	os.Args[2] = strings.Replace(os.Args[2], messagePrefix, "", 1)
+
 	// concat all arguments after the msgType
 	var argMsgs []string
-	for i := 3; i < len(os.Args); i++ {
+	for i := 2; i < len(os.Args); i++ {
 		argMsgs = append(argMsgs, os.Args[i])
 	}
+
 	var argMsg = strings.Join(argMsgs, " ")
 	argMsg = strings.Replace(argMsg, ">", "", 1) // remove the > from the beginning
 	msg, err := messages.NewMessage(os.Args[1], argMsg)
