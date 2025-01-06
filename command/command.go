@@ -64,7 +64,7 @@ func help() {
 	sb.WriteString(plannedFeatureLine("view <today,yesterday,week,YYYY-MM-DD> <win,note,fix,task>", "Display all messages based off specific type and date"))
 	sb.WriteString(plannedFeatureLine("search <keyword>", "Display all messages that contain the keyword"))
 	sb.WriteString(plannedFeatureLine("search <win,note,fix,task> <keyword>", "Display all messages based off specific type and keyword"))
-	sb.WriteString(plannedFeatureLine("search <today,yesterday,week,YYYY-MM-DD> <win,note,fix,task> <keyword>", "Edit a message by id"))
+	sb.WriteString(plannedFeatureLine("search <today,yesterday,week,YYYY-MM-DD> <win,note,fix,task> <keyword>", "Display all messages based off specific type, date, and keyword"))
 	sb.WriteString(plannedFeatureLine("delete <id>", "Delete a message by id"))
 	sb.WriteString(plannedFeatureLine("edit <id>", "Edit a message by id"))
 
