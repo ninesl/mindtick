@@ -22,6 +22,14 @@ func helpLine(command, description string) string {
 	)
 }
 
+func plannedFeatureLine(command, description string) string {
+	return fmt.Sprintf(
+		"%80s\t%s\n",
+		messages.ColorizeStr(command, messages.BrightCyan),
+		description,
+	)
+}
+
 /*
 unsure if this true/false is a good way to handle errors
 
@@ -50,6 +58,15 @@ func help() {
 	sb.WriteString(helpLine("note", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.NOTE, false))))
 	sb.WriteString(helpLine("fix", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.FIX, false))))
 	sb.WriteString(helpLine("task", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.TASK, false))))
+	sb.WriteString("\nPlanned Features\n")
+	sb.WriteString(plannedFeatureLine("view <today,yesterday,week,YYYY-MM-DD>", "Display all messages based off specific date"))
+	sb.WriteString(plannedFeatureLine("view <win,note,fix,task>", "Display all messages based off specific type"))
+	sb.WriteString(plannedFeatureLine("view <today,yesterday,week,YYYY-MM-DD> <win,note,fix,task>", "Display all messages based off specific type and date"))
+	sb.WriteString(plannedFeatureLine("search <keyword>", "Display all messages that contain the keyword"))
+	sb.WriteString(plannedFeatureLine("search <win,note,fix,task> <keyword>", "Display all messages based off specific type and keyword"))
+	sb.WriteString(plannedFeatureLine("search <today,yesterday,week,YYYY-MM-DD> <win,note,fix,task> <keyword>", "Edit a message by id"))
+	sb.WriteString(plannedFeatureLine("delete <id>", "Delete a message by id"))
+	sb.WriteString(plannedFeatureLine("edit <id>", "Edit a message by id"))
 
 	fmt.Print(sb.String())
 }
