@@ -19,7 +19,7 @@ Make sure you have the most recent version of go installed *(1.24.4 at the time 
 
 You can find the most recent release of go here: https://go.dev/dl/
 
-After go has been installed, run `go get github.com/ninesl/mindtick@latest`
+After go has been installed, run `go install github.com/ninesl/mindtick@latest`
 
 If your `$PATH` variables are setup correctly *(will be by default)* run `mindtick` in a new terminal window to ensure Mindtick was installed correctly.
 
