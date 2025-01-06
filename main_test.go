@@ -4,7 +4,6 @@ package main
 import (
 	"math/rand/v2"
 	"sort"
-	"strconv"
 	"testing"
 	"time"
 
@@ -55,13 +54,13 @@ func generateTestMessages(count int) []messages.Message {
 		var msg messages.Message
 		switch msgType {
 		case "win":
-			msg, _ = messages.NewMessage("win", "win message "+strconv.Itoa(msgCount[msgType]))
+			msg, _ = messages.NewMessage("win", "win message")
 		case "note":
-			msg, _ = messages.NewMessage("note", "note message "+strconv.Itoa(msgCount[msgType]))
+			msg, _ = messages.NewMessage("note", "note message")
 		case "fix":
-			msg, _ = messages.NewMessage("fix", "fix message "+strconv.Itoa(msgCount[msgType]))
+			msg, _ = messages.NewMessage("fix", "fix message")
 		case "task":
-			msg, _ = messages.NewMessage("task", "task message "+strconv.Itoa(msgCount[msgType]))
+			msg, _ = messages.NewMessage("task", "task message")
 		}
 		msgs = append(msgs, msg)
 		msgCount[msgType]++
