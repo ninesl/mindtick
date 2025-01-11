@@ -74,6 +74,15 @@ const (
 	TASK
 )
 
+var (
+	MessageTypeStr = map[string]MessageType{
+		"win":  WIN,
+		"note": NOTE,
+		"fix":  FIX,
+		"task": TASK,
+	}
+)
+
 // id INTEGER PRIMARY KEY AUTOINCREMENT,
 // timestamp DATETIME,
 // msg TEXT,

@@ -119,10 +119,22 @@ func ProcessArgs() {
 			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
 			return
 		}
-		msgs, err := store.GetMessages(db) // TODO: view by date, type, etc
-		if err != nil {
-			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-			return
+		var msgs []messages.Message
+		if len(os.Args) == 2 {
+			msgs, err = store.GetMessages(db) // TODO: view by date, type, etc
+			if err != nil {
+				fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+				return
+			}
+		} else if len(os.Args) == 3 {
+			msgType := messages.MessageTypeStr[os.Args[2]]
+			msgs, err = store.GetMessagesByType(db, msgType)
+			if err != nil {
+				fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
+				return
+			}
+		} else {
+			fmt.Println("view command only takes up to 3 arguments", useHelpMsg)
 		}
 		messages.RenderMessages(msgs...)
 	default:

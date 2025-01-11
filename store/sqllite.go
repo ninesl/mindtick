@@ -116,6 +116,35 @@ func AddMessage(db *sql.DB, message messages.Message) error {
 	return nil
 }
 
+func GetMessagesByType(db *sql.DB, msgType messages.MessageType) ([]messages.Message, error) {
+
+	// find message type by comparing the string to map
+
+	if msgType == messages.NONE {
+		return nil, fmt.Errorf("invalid message type")
+	}
+
+	rows, err := db.Query("SELECT * FROM messages WHERE msgtype = ? ORDER BY timestamp", msgType)
+	if err != nil {
+		return nil, fmt.Errorf("unable to select messages: %v", err)
+	}
+	defer rows.Close()
+
+	var msgs []messages.Message
+	for rows.Next() {
+		var msg messages.Message
+		err := rows.Scan(&msg.ID, &msg.Timestamp, &msg.Msg, &msg.MsgType)
+		if err != nil {
+			return nil, fmt.Errorf("unable to read message: %v", err)
+		}
+		msgs = append(msgs, msg)
+	}
+	if len(msgs) == 0 {
+		return nil, fmt.Errorf("no messages found")
+	}
+	return msgs, nil
+}
+
 func GetMessages(db *sql.DB) ([]messages.Message, error) {
 	rows, err := db.Query("SELECT * FROM messages ORDER BY timestamp")
 	if err != nil {
