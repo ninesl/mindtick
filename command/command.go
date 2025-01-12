@@ -153,6 +153,9 @@ func View() error {
 			return err
 		}
 
+		if len(msgs) == 0 {
+			return fmt.Errorf(messages.ColorizeStr("no messages found", messages.BrightRed))
+		}
 		messages.RenderMessages(msgs...)
 		return nil
 	}
@@ -192,6 +195,9 @@ func View() error {
 		return err
 	}
 
+	if len(msgs) == 0 {
+		return fmt.Errorf("no messages found with %s", messages.ColorizeStr(strings.Join(os.Args[2:], " "), messages.BrightPurple))
+	}
 	messages.RenderMessages(msgs...)
 	return nil
 }
