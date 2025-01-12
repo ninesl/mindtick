@@ -31,11 +31,11 @@ func TestRenderOutput(t *testing.T) {
 		messages.RenderMessages(msgs...) // This will print to terminal
 
 		// Verify all message types are present
-		types := make(map[messages.MessageType]bool)
+		types := make(map[messages.Tag]bool)
 		for _, msg := range msgs {
-			types[msg.MsgType] = true
+			types[msg.Tag] = true
 		}
-		expectedTypes := []messages.MessageType{messages.WIN, messages.NOTE, messages.FIX, messages.TASK}
+		expectedTypes := []messages.Tag{messages.WIN, messages.NOTE, messages.FIX, messages.TASK}
 		for _, expectedType := range expectedTypes {
 			if !types[expectedType] {
 				t.Errorf("missing message type: %v", expectedType)

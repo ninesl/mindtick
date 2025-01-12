@@ -1,7 +1,6 @@
 package command
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 	"strings"
@@ -18,10 +17,37 @@ func Exec() {
 	}
 }
 
+//go:embed version
+var version string
+
 var (
-	useHelpMsg    = fmt.Sprintf("use %s for more information\n", messages.ColorizeStr("mindtick help", messages.BrightGreen))
-	messagePrefix = "-" // FIXME: how to ignore =:zsh or >:newfilem ' ", other chars, etc? custom prefix?
+	Ver           string = messages.ColorizeStr(fmt.Sprintf("mindtick %s", version), messages.Bold, messages.BrightRedBg)
+	useHelpMsg           = fmt.Sprintf("use %s for more information\n", messages.ColorizeStr("mindtick help", messages.BrightGreen))
+	messagePrefix        = "-" // FIXME: how to ignore =:zsh or >:newfilem ' ", other chars, etc? custom prefix?
 )
+
+func Version() error {
+	fmt.Println(Ver)
+	return nil
+}
+func Help() error {
+	var sb strings.Builder
+	sb.WriteString(Ver)
+	sb.WriteString("\nUsage\n")
+	sb.WriteString(messages.ColorizeStr("mindtick <MessageStrategy>\n", messages.BrightGreen))
+	sb.WriteString("\nCommands\n")
+	for _, cmd := range commandOrder {
+		sb.WriteString(helpLine(cmd, commandsHelp[cmd]))
+	}
+	sb.WriteString("\nPlanned Features\n")
+	sb.WriteString(plannedFeatureLine("export {tags} {filetype}", "Export all messages to a .pdf/csv/txt file based off specific tags"))
+	sb.WriteString(plannedFeatureLine("delete <id>", "Delete a message by id"))
+	sb.WriteString(plannedFeatureLine("edit <id> <new message>", "Edit a message by id"))
+	sb.WriteString(plannedFeatureLine("{keyword}", "filter by substring"))
+
+	fmt.Print(sb.String())
+	return nil
+}
 
 func helpLine(MessageStrategy, description string) string {
 	return fmt.Sprintf(
@@ -39,103 +65,146 @@ func plannedFeatureLine(MessageStrategy, description string) string {
 	)
 }
 
-//go:embed version
-var version string
-
-func help() {
+func Ranges() error {
 	var sb strings.Builder
-	versionStr := fmt.Sprintf("mindtick %s", version)
-	sb.WriteString(messages.ColorizeStr(versionStr, messages.Bold, messages.BrightRedBg))
-	sb.WriteString("\nUsage\n")
-	sb.WriteString(messages.ColorizeStr("mindtick <MessageStrategy>\n", messages.BrightGreen))
-	sb.WriteString("\nMessageStrategys\n")
-	sb.WriteString(helpLine("help", "Display this help message"))
-	sb.WriteString(helpLine("new", "Create a new mindtick file in the current directory"))
-	sb.WriteString(helpLine("delete", "Delete the mindtick file in the current directory"))
-	sb.WriteString(helpLine("view", "Display all messages in the mindtick file"))
-	//TODO: win/note/fix/task into a map or something
-	sb.WriteString(helpLine("win", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.WIN, false))))
-	sb.WriteString(helpLine("note", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.NOTE, false))))
-	sb.WriteString(helpLine("fix", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.FIX, false))))
-	sb.WriteString(helpLine("task", fmt.Sprintf("-<message> adds a %s message to the mindtick file", messages.RenderTitle(messages.TASK, false))))
-	sb.WriteString("\nPlanned Features\n")
-	sb.WriteString(plannedFeatureLine("view {tags}", "Display all messages based off specific tags"))
-	sb.WriteString(plannedFeatureLine("export {tags} {filetype}", "Export all messages to a .pdf/csv/txt file based off specific tags"))
-	sb.WriteString(plannedFeatureLine("delete <id>", "Delete a message by id"))
-	sb.WriteString(plannedFeatureLine("edit <id> <new message>", "Edit a message by id"))
-	sb.WriteString(plannedFeatureLine("planned filter {tags}", "Used to filter messages based off specific tags in various MessageStrategys"))
-	sb.WriteString(plannedFeatureLine("{today,yesterday,week,YYYY-MM-DD}", "available date options"))
-	sb.WriteString(plannedFeatureLine("{win,note,fix,task}", "filter by message type"))
-	sb.WriteString(plannedFeatureLine("{keyword}", "filter by substring"))
-
+	sb.WriteString(helpLine("USAGE: ", messages.ColorizeStr("mindtick view range", messages.BrightPurple)))
+	sb.WriteString(helpLine("", messages.ColorizeStr("mindtick view range tag", messages.BrightPurple)))
+	for str, rangeValue := range store.StrToRange {
+		date := messages.RenderDate(store.RangeToTime[rangeValue])
+		sb.WriteString(plannedFeatureLine(str, fmt.Sprintf("Filter messages from today to %s", date)))
+	}
 	fmt.Print(sb.String())
-}
-
-func View(db *sql.DB) error {
-	args := os.Args
-
-	if len(args) == 2 { // default behavior
-		store.Messages(db, messages.ANYTAG, messages.ANYTIME)
-	}
-
-	rangeType := messages.StrToRange[args[2]]
-	msgType := messages.StrToMsgType[args[2]]
-
-	var msgs []messages.Message
-	if rangeType != messages.ANYTIME && msgType != messages.ANYTAG {
-		var err error
-		msgs, err = store.Messages(db, msgType, rangeType)
-		if err != nil {
-			return err
-		}
-	}
-	messages.RenderMessages(msgs...)
-
 	return nil
 }
+
+func Tags() error {
+	var sb strings.Builder
+	sb.WriteString(helpLine("USAGE:", messages.ColorizeStr("mindtick tag -your message", messages.BrightPurple)))
+	sb.WriteString(helpLine("", messages.ColorizeStr("mindtick view tag", messages.BrightPurple)))
+	sb.WriteString(helpLine("", messages.ColorizeStr("mindtick view tag range", messages.BrightPurple)))
+	for _, tag := range messages.StrToTag {
+		sb.WriteString(helpLine(messages.Tags[tag], ""))
+	}
+	fmt.Print(sb.String())
+	return nil
+}
+
+var (
+	commands = map[string]func() error{
+		"help":    Help,
+		"version": Version,
+		"new":     store.New,
+		"delete":  store.Delete,
+		"tag":     AddMessage,
+		"view":    View,
+		"tags":    Tags,
+		"ranges":  Ranges,
+	}
+	commandsHelp = map[string]string{
+		"help":    "Display this help message",
+		"version": "Display the current version of mindtick",
+		"new":     "Create a new mindtick file in the current directory",
+		"delete":  "Delete the mindtick file in the current directory",
+		"tag":     fmt.Sprintf("%s | adds a message", messages.ColorizeStr("-your message", messages.BrightPurple)),
+		"view":    fmt.Sprintf("optional: %s | Display messages by tag and/or range", messages.ColorizeStr("tag range", messages.BrightPurple)),
+		"tags":    fmt.Sprintf("Display all available tags, used in %s and %s", messages.ColorizeStr("view", messages.BrightGreen), messages.ColorizeStr("tag", messages.BrightGreen)),
+		"ranges":  "Display all available ranges",
+	}
+	commandOrder = []string{"version", "help", "new", "delete", "tag", "view", "tags", "ranges"}
+)
 
 func processArgs() error {
 	if len(os.Args) < 2 {
 		return fmt.Errorf("mindtick requires at least one argument, %s", useHelpMsg)
 	}
 
-	switch os.Args[1] {
-	case "help":
-		help()
-	case "new":
-		if len(os.Args) > 2 {
-			return fmt.Errorf("%s does not take any arguments, %s", messages.ColorizeStr("mindtick new", messages.BrightGreen), useHelpMsg)
-		}
-		return store.New()
-	case "delete":
-		if len(os.Args) > 2 {
-			fmt.Printf("%s does not take any arguments, %s", messages.ColorizeStr("mindtick delete", messages.BrightGreen), useHelpMsg)
-		}
-		return store.Delete()
-	case "win", "task", "note", "fix": // combine all message types into a single case
-		db, err := store.LoadMindtick()
-		if err != nil {
-			return err
-		}
-		return AddMessage(db)
-	case "view":
-		db, err := store.LoadMindtick()
-		if err != nil {
-			return err
-		}
-		return View(db)
+	if _, ok := messages.StrToTag[os.Args[1]]; ok {
+		return AddMessage()
 	}
 
-	return fmt.Errorf("unknown mindtick argument %s, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
+	if len(os.Args) > 1 {
+		if cmd, ok := commands[os.Args[1]]; ok {
+			return cmd()
+		}
+	} else {
+		return fmt.Errorf("mindtick requires at least one argument, %s", useHelpMsg)
+	}
+
+	return fmt.Errorf("unknown mindtick argument %s, %s", messages.ColorizeStr(strings.Join(os.Args[1:], " "), messages.BrightPurple), useHelpMsg)
 }
 
-func AddMessage(db *sql.DB) error {
+func View() error {
+	args := os.Args
+	size := len(args)
 
+	if size > 4 {
+		return fmt.Errorf("too many arguments for view, %s", useHelpMsg)
+	}
+
+	db, err := store.LoadMindtick()
+	if err != nil {
+		return err
+	}
+
+	if size == 2 { // default behavior
+		msgs, err := store.Messages(db, messages.ANYTAG, store.ANYTIME)
+		if err != nil {
+			return err
+		}
+
+		messages.RenderMessages(msgs...)
+		return nil
+	}
+
+	rangeType := store.StrToRange[args[2]]
+	msgType := messages.StrToTag[args[2]]
+
+	if rangeType == store.ANYTIME && msgType == messages.ANYTAG {
+		return fmt.Errorf("unknown view argument %s, %s", messages.ColorizeStr(args[2], messages.BrightPurple), useHelpMsg)
+	}
+
+	if size == 4 {
+		// if range is not found, check if it's a tag
+		if rangeType == store.ANYTIME {
+			rangeType = store.StrToRange[args[3]]
+			if rangeType == store.ANYTIME {
+				var ranges []string
+				for k := range store.StrToRange {
+					ranges = append(ranges, k)
+				}
+				return fmt.Errorf("unknown view range %s\nvalid ranges are %v", messages.ColorizeStr(args[3], messages.BrightPurple), messages.ColorizeStr(strings.Join(ranges, ", "), messages.BrightGreen))
+			}
+		} else if msgType == messages.ANYTAG {
+			msgType = messages.StrToTag[args[3]]
+			if msgType == messages.ANYTAG {
+				var msgTypes []string
+				for k := range messages.StrToTag {
+					msgTypes = append(msgTypes, k)
+				}
+				return fmt.Errorf("unknown view tag %s\nvalid tags are %v", messages.ColorizeStr(args[3], messages.BrightPurple), messages.ColorizeStr(strings.Join(msgTypes, ", "), messages.BrightGreen))
+			}
+		}
+	}
+
+	msgs, err := store.Messages(db, msgType, rangeType)
+	if err != nil {
+		return err
+	}
+
+	messages.RenderMessages(msgs...)
+	return nil
+}
+
+func AddMessage() error {
+	db, err := store.LoadMindtick()
+	if err != nil {
+		return err
+	}
 	if len(os.Args) < 3 {
 		return fmt.Errorf("mindtick %s must have a message, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
 	}
 	if os.Args[2][0:1] != messagePrefix {
-		tip := fmt.Sprintf("mindtick %s %v{your message here}", os.Args[1], messagePrefix)
+		tip := fmt.Sprintf("mindtick %s %vyour message", os.Args[1], messagePrefix)
 		return fmt.Errorf("mindtick messages must start with %v. example usage: %s\n%s", messagePrefix, messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/ninesl/mindtick/messages"
 	_ "modernc.org/sqlite"
@@ -77,7 +78,15 @@ func New() error {
 	}
 	createSchema(db)
 
-	return nil
+	return fmt.Errorf(messages.ColorizeStr("mindtick intialized", messages.BrightPurple))
+}
+
+func Delete() error {
+	err := os.Remove(dbFileName)
+	if err != nil {
+		return fmt.Errorf("failed to remove %s: %v", dbFileName, err)
+	}
+	return fmt.Errorf(messages.ColorizeStr("mindtick deleted", messages.BrightPurple))
 }
 
 func createSchema(db *sql.DB) error {
@@ -100,69 +109,81 @@ func createSchema(db *sql.DB) error {
 	return nil
 }
 
-func Delete() error {
-	err := os.Remove(dbFileName)
-	if err != nil {
-		return fmt.Errorf("failed to delete: %v", err)
-	}
-	return nil
-}
-
 func AddMessage(db *sql.DB, message messages.Message) error {
-	_, err := db.Exec("INSERT INTO messages (timestamp, msg, msgtype) VALUES (?, ?, ?)", message.Timestamp, message.Msg, message.MsgType)
+	_, err := db.Exec("INSERT INTO messages (timestamp, msg, msgtype) VALUES (?, ?, ?)", message.Timestamp, message.Msg, message.Tag)
 	if err != nil {
 		return fmt.Errorf("unable to add message: %v", err)
 	}
 	return nil
 }
 
-func GetMessagesByType(db *sql.DB, msgType messages.MessageType) ([]messages.Message, error) {
+type Range uint8
 
-	// find message type by comparing the string to map
+const (
+	ANYTIME Range = iota
+	TODAY
+	YESTERDAY
+	WEEK
+	MONTH
+)
 
-	if msgType == messages.NONE {
-		return nil, fmt.Errorf("invalid message type")
+var (
+	StrToRange = map[string]Range{
+		"today":     TODAY,
+		"yesterday": YESTERDAY,
+		"week":      WEEK,
+		"month":     MONTH,
+	}
+	RangeToTime = map[Range]time.Time{
+		TODAY:     time.Now().Truncate(24 * time.Hour),
+		YESTERDAY: time.Now().AddDate(0, 0, -1).Truncate(24 * time.Hour),
+		WEEK:      time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour),
+		MONTH:     time.Now().AddDate(0, -1, 0).Truncate(24 * time.Hour),
+	}
+)
+
+func Messages(db *sql.DB, tag messages.Tag, rangeType Range) ([]messages.Message, error) {
+	var SQLstmt string
+	var rows *sql.Rows
+	var err error
+
+	if rangeType == ANYTIME && tag == messages.ANYTAG {
+		SQLstmt = "SELECT * FROM messages ORDER BY timestamp"
+		rows, err = db.Query(SQLstmt)
 	}
 
-	rows, err := db.Query("SELECT * FROM messages WHERE msgtype = ? ORDER BY timestamp", msgType)
+	if rangeType != ANYTIME && tag == messages.ANYTAG {
+		SQLstmt = "SELECT * FROM messages WHERE timestamp >= ? ORDER BY timestamp"
+		rows, err = db.Query(SQLstmt, RangeToTime[rangeType])
+	}
+
+	if rangeType == ANYTIME && tag != messages.ANYTAG {
+		SQLstmt = "SELECT * FROM messages WHERE msgtype = ? ORDER BY timestamp"
+		rows, err = db.Query(SQLstmt, tag)
+	}
+
+	if rangeType != ANYTIME && tag != messages.ANYTAG {
+		SQLstmt = "SELECT * FROM messages WHERE msgtype = ? AND timestamp >= ? ORDER BY timestamp"
+		rows, err = db.Query(SQLstmt, tag, RangeToTime[rangeType])
+	}
+
 	if err != nil {
-		return nil, fmt.Errorf("unable to select messages: %v", err)
+		return nil, fmt.Errorf("unable to query messages: %v", err)
 	}
 	defer rows.Close()
 
-	var msgs []messages.Message
-	for rows.Next() {
-		var msg messages.Message
-		err := rows.Scan(&msg.ID, &msg.Timestamp, &msg.Msg, &msg.MsgType)
-		if err != nil {
-			return nil, fmt.Errorf("unable to read message: %v", err)
-		}
-		msgs = append(msgs, msg)
-	}
-	if len(msgs) == 0 {
-		return nil, fmt.Errorf("no messages found")
-	}
-	return msgs, nil
+	return processRows(rows)
 }
 
-func GetMessages(db *sql.DB) ([]messages.Message, error) {
-	rows, err := db.Query("SELECT * FROM messages ORDER BY timestamp")
-	if err != nil {
-		return nil, fmt.Errorf("unable to select messages: %v", err)
-	}
-	defer rows.Close()
-
+func processRows(rows *sql.Rows) ([]messages.Message, error) {
 	var msgs []messages.Message
 	for rows.Next() {
 		var msg messages.Message
-		err := rows.Scan(&msg.ID, &msg.Timestamp, &msg.Msg, &msg.MsgType)
+		err := rows.Scan(&msg.ID, &msg.Timestamp, &msg.Msg, &msg.Tag)
 		if err != nil {
-			return nil, fmt.Errorf("unable to read message: %v", err)
+			return nil, fmt.Errorf("unable to scan messages: %v", err)
 		}
 		msgs = append(msgs, msg)
-	}
-	if len(msgs) == 0 {
-		return nil, fmt.Errorf("no messages found")
 	}
 	return msgs, nil
 }

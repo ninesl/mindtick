@@ -7,39 +7,39 @@ import (
 
 // bright purple, cyan, green, yellow
 var (
-	winTitle  = ColorizeStr("  win", Bold, Yellow, GreenBg)
-	winBg     = ColorizeStr("     ", Bold, Yellow, GreenBg)
-	noteTitle = ColorizeStr(" note", Bold, Yellow, CyanBg)
-	noteBg    = ColorizeStr("     ", Bold, Yellow, CyanBg)
-	fixTitle  = ColorizeStr("  fix", Bold, Yellow, YellowBg)
-	fixBg     = ColorizeStr("     ", Bold, Yellow, YellowBg)
-	taskTitle = ColorizeStr(" task", Bold, Yellow, PurpleBg)
-	taskBg    = ColorizeStr("     ", Bold, Yellow, PurpleBg)
+	winTag  = ColorizeStr("  win", Bold, Yellow, GreenBg)
+	winBg   = ColorizeStr("     ", Bold, Yellow, GreenBg)
+	noteTag = ColorizeStr(" note", Bold, Yellow, CyanBg)
+	noteBg  = ColorizeStr("     ", Bold, Yellow, CyanBg)
+	fixTag  = ColorizeStr("  fix", Bold, Yellow, YellowBg)
+	fixBg   = ColorizeStr("     ", Bold, Yellow, YellowBg)
+	taskTag = ColorizeStr(" task", Bold, Yellow, PurpleBg)
+	taskBg  = ColorizeStr("     ", Bold, Yellow, PurpleBg)
 
-	redTitle          = ColorizeStr("red", Bold, Red, RedBg)
-	blackTitle        = ColorizeStr("black", Bold, BlackBg)
-	whiteTitle        = ColorizeStr("white", Bold, WhiteBg)
-	greenTitle        = ColorizeStr("green", Bold, Green, GreenBg)
-	yellowTitle       = ColorizeStr("yellow", Bold, Yellow, YellowBg)
-	blueTitle         = ColorizeStr("blue", Bold, Blue, BlueBg)
-	purpleTitle       = ColorizeStr("purple", Bold, Purple, PurpleBg)
-	cyanTitle         = ColorizeStr("cyan", Bold, Cyan, CyanBg)
-	brightBlackTitle  = ColorizeStr("brightBlack", Bold, BrightBlack, BrightBlackBg)
-	brightRedTitle    = ColorizeStr("brightRed", Bold, BrightRed, BrightRedBg)
-	brightGreenTitle  = ColorizeStr("brightGreen", Bold, BrightGreen, BrightGreenBg)
-	brightYellowTitle = ColorizeStr("brightYellow", Bold, BrightYellow, BrightYellowBg)
-	brightBlueTitle   = ColorizeStr("brightBlue", Bold, BrightBlue, BrightBlueBg)
-	brightPurpleTitle = ColorizeStr("brightPurple", Bold, BrightPurple, BrightPurpleBg)
-	brightCyanTitle   = ColorizeStr("brightCyan", Bold, BrightCyan, BrightCyanBg)
-	brightWhiteTitle  = ColorizeStr("brightWhite", Bold, BrightWhite, BrightWhiteBg)
+	redTag          = ColorizeStr("red", Bold, Red, RedBg)
+	blackTag        = ColorizeStr("black", Bold, BlackBg)
+	whiteTag        = ColorizeStr("white", Bold, WhiteBg)
+	greenTag        = ColorizeStr("green", Bold, Green, GreenBg)
+	yellowTag       = ColorizeStr("yellow", Bold, Yellow, YellowBg)
+	blueTag         = ColorizeStr("blue", Bold, Blue, BlueBg)
+	purpleTag       = ColorizeStr("purple", Bold, Purple, PurpleBg)
+	cyanTag         = ColorizeStr("cyan", Bold, Cyan, CyanBg)
+	brightBlackTag  = ColorizeStr("brightBlack", Bold, BrightBlack, BrightBlackBg)
+	brightRedTag    = ColorizeStr("brightRed", Bold, BrightRed, BrightRedBg)
+	brightGreenTag  = ColorizeStr("brightGreen", Bold, BrightGreen, BrightGreenBg)
+	brightYellowTag = ColorizeStr("brightYellow", Bold, BrightYellow, BrightYellowBg)
+	brightBlueTag   = ColorizeStr("brightBlue", Bold, BrightBlue, BrightBlueBg)
+	brightPurpleTag = ColorizeStr("brightPurple", Bold, BrightPurple, BrightPurpleBg)
+	brightCyanTag   = ColorizeStr("brightCyan", Bold, BrightCyan, BrightCyanBg)
+	brightWhiteTag  = ColorizeStr("brightWhite", Bold, BrightWhite, BrightWhiteBg)
 
-	titles = map[MessageType]string{
-		WIN:  winTitle,
-		NOTE: noteTitle,
-		FIX:  fixTitle,
-		TASK: taskTitle,
+	Tags = map[Tag]string{
+		WIN:  winTag,
+		NOTE: noteTag,
+		FIX:  fixTag,
+		TASK: taskTag,
 	}
-	bgs = map[MessageType]string{
+	bgs = map[Tag]string{
 		WIN:  winBg,
 		NOTE: noteBg,
 		FIX:  fixBg,
@@ -52,22 +52,23 @@ const (
 	ONLYBG  = true
 )
 
-func PrintAllTitles() {
-	titles := []string{
-		winTitle, noteTitle, fixTitle, redTitle, blackTitle, whiteTitle, greenTitle, yellowTitle,
-		blueTitle, purpleTitle, cyanTitle, brightBlackTitle, brightRedTitle, brightGreenTitle,
-		brightYellowTitle, brightBlueTitle, brightPurpleTitle, brightCyanTitle, brightWhiteTitle,
+// Prints all tags for display testing purposes.
+func PrintAllTags() {
+	tags := []string{
+		winTag, noteTag, fixTag, redTag, blackTag, whiteTag, greenTag, yellowTag,
+		blueTag, purpleTag, cyanTag, brightBlackTag, brightRedTag, brightGreenTag,
+		brightYellowTag, brightBlueTag, brightPurpleTag, brightCyanTag, brightWhiteTag,
 	}
 
-	for _, title := range titles {
-		fmt.Println(title)
+	for _, tag := range tags {
+		fmt.Println(tag)
 	}
 }
 
-type MessageType uint8
+type Tag uint8
 
 const (
-	NONE MessageType = iota
+	ANYTAG Tag = iota
 	WIN
 	NOTE
 	FIX
@@ -75,7 +76,7 @@ const (
 )
 
 var (
-	MessageTypeStr = map[string]MessageType{
+	StrToTag = map[string]Tag{
 		"win":  WIN,
 		"note": NOTE,
 		"fix":  FIX,
@@ -88,10 +89,10 @@ var (
 // msg TEXT,
 // msgtype INT
 type Message struct {
-	Timestamp time.Time   `db:"timestamp"`
-	Msg       string      `db:"msg"`
-	ID        int         `db:"id"`
-	MsgType   MessageType `db:"msgtype"`
+	Timestamp time.Time `db:"timestamp"`
+	Msg       string    `db:"msg"`
+	ID        int       `db:"id"`
+	Tag       Tag       `db:"msgtype"`
 }
 
 func renderTime(t time.Time) string {
@@ -102,30 +103,30 @@ func renderTime(t time.Time) string {
 	return tStr
 }
 
-func RenderTitle(msgType MessageType, bgOnly bool) string {
-	var title string
+func RenderTag(msgType Tag, bgOnly bool) string {
+	var tag string
 
 	if bgOnly {
-		title = bgs[msgType]
+		tag = bgs[msgType]
 	} else {
-		title = titles[msgType]
+		tag = Tags[msgType]
 	}
-	title = fmt.Sprintf("%*s", 23, title)
-	// 23 is the length of the longest title bc of ANSI color
+	tag = fmt.Sprintf("%*s", 23, tag)
+	// 23 is the length of the longest tag bc of ANSI color
 
-	return title
+	return tag
 }
 
 func RenderMsg(msg Message, bgOnly bool) string {
 	var (
-		title = RenderTitle(msg.MsgType, bgOnly)
-		time  = renderTime(msg.Timestamp)
+		tag  = RenderTag(msg.Tag, bgOnly)
+		time = renderTime(msg.Timestamp)
 	)
 
-	return fmt.Sprintf("%s %s     %s", title, time, msg.Msg)
+	return fmt.Sprintf("%s %s     %s", tag, time, msg.Msg)
 }
 
-func renderDate(d time.Time) string {
+func RenderDate(d time.Time) string {
 	date := fmt.Sprintf("[ %s ]", d.Format("Jan 02, 2006"))
 	date = ColorizeStr(date, BrightPurple)
 	return date
@@ -134,18 +135,18 @@ func renderDate(d time.Time) string {
 // will always be sorted by timestamp
 func RenderMessages(msgs ...Message) {
 	curDate := msgs[0].Timestamp
-	curType := NONE
-	fmt.Println(renderDate(curDate))
+	curType := ANYTAG
+	fmt.Println(RenderDate(curDate))
 
 	for i := range msgs {
 		if curDate.Day() != msgs[i].Timestamp.Day() {
 			curDate = msgs[i].Timestamp
-			curType = NONE
-			fmt.Println("\n" + renderDate(curDate))
+			curType = ANYTAG
+			fmt.Println("\n" + RenderDate(curDate))
 		}
 
-		if curType != msgs[i].MsgType {
-			curType = msgs[i].MsgType
+		if curType != msgs[i].Tag {
+			curType = msgs[i].Tag
 			fmt.Println(RenderMsg(msgs[i], BGTITLE))
 		} else {
 			fmt.Println(RenderMsg(msgs[i], ONLYBG))
@@ -154,7 +155,7 @@ func RenderMessages(msgs ...Message) {
 }
 
 func NewMessage(msgTypeStr string, msg string) (Message, error) {
-	var msgType MessageType
+	var msgType Tag
 
 	switch msgTypeStr {
 	case "win":
@@ -166,12 +167,12 @@ func NewMessage(msgTypeStr string, msg string) (Message, error) {
 	case "task":
 		msgType = TASK
 	default:
-		return Message{}, fmt.Errorf("invalid message type")
+		return Message{}, fmt.Errorf("invalid message type: %s", ColorizeStr(msgTypeStr, White, BrightPurpleBg))
 	}
 
 	return Message{
 		Timestamp: time.Now(),
 		Msg:       msg,
-		MsgType:   msgType,
+		Tag:       msgType,
 	}, nil
 }
