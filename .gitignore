@@ -4,3 +4,4 @@ store.mindtick
 # Added by goreleaser init:
 dist/
 .goreleaser.yaml
+store.mindtick
