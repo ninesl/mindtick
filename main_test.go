@@ -2,12 +2,17 @@
 package main
 
 import (
+	"fmt"
 	"math/rand/v2"
+	"os"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/ninesl/mindtick/command"
 	"github.com/ninesl/mindtick/messages"
+	"github.com/ninesl/mindtick/store"
 )
 
 func TestRenderOutput(t *testing.T) {
@@ -78,4 +83,143 @@ func generateTestMessages(count int) []messages.Message {
 	})
 
 	return msgs
+}
+func addArgs(args []string) {
+	os.Args = append(os.Args, args...)
+}
+
+var (
+	tagMessages = map[string][]string{
+		"win": {
+			"-deployed new feature to production",
+			"-achieved 100% test coverage",
+			"-completed user authentication system",
+			"-successful client demo",
+			"-optimized database queries by 50%",
+			"-merged major feature branch",
+			"-secured new enterprise client",
+			"-reduced API latency by 40%",
+			"-implemented zero-downtime deployments",
+			"-completed security audit",
+			"-achieved AWS certification",
+			"-launched mobile app v2.0",
+			"-migrated legacy system successfully",
+			"-scaled system to 1M users",
+			"-won hackathon first place",
+		},
+		"note": {
+			"-need to update documentation",
+			"-api rate limits changed to 1000/min",
+			"-team meeting moved to Thursdays",
+			"-switching to new logging framework",
+			"-considering kubernetes migration",
+			"-database backup scheduled weekly",
+			"-new API version available",
+			"-cloud costs increased 15%",
+			"-team expanding next month",
+			"-planning system architecture v2",
+			"-evaluating new cache solution",
+			"-documentation needs review",
+			"-monitoring system upgrade needed",
+			"-customer feedback session tomorrow",
+			"-tech debt assessment completed",
+		},
+		"fix": {
+			"-resolved memory leak in worker pool",
+			"-fixed broken CI pipeline",
+			"-patched security vulnerability",
+			"-corrected timezone handling bug",
+			"-fixed race condition in cache layer",
+			"-resolved null pointer exception",
+			"-eliminated database deadlock",
+			"-fixed authentication bypass",
+			"-resolved session handling issue",
+			"-fixed data corruption bug",
+			"-patched XSS vulnerability",
+			"-fixed broken deployment script",
+			"-resolved API versioning conflict",
+			"-fixed memory overflow issue",
+			"-corrected data validation logic",
+		},
+		"task": {
+			"-implement rate limiting",
+			"-update dependencies",
+			"-add error monitoring",
+			"-setup staging environment",
+			"-create backup strategy",
+			"-write integration tests",
+			"-implement CI/CD pipeline",
+			"-configure load balancer",
+			"-setup monitoring alerts",
+			"-implement search feature",
+			"-add user analytics",
+			"-create api documentation",
+			"-implement caching layer",
+			"-setup disaster recovery",
+			"-add performance metrics",
+		},
+	}
+)
+
+func mindtick(input string) {
+	args := strings.Fields(input)
+	os.Args = append([]string{"mindtick"}, args...)
+	fmt.Println()
+	fmt.Println("Running command:")
+	fmt.Println(messages.ColorizeStr("mindtick "+strings.Join(args, " "), messages.Cyan))
+	fmt.Println()
+	command.Exec()
+}
+
+func TestRenderWithCustomArgs(t *testing.T) {
+	// Save original
+	oldArgs := os.Args
+
+	var args []string
+
+	mindtick("new")
+	mindtick("tags")
+	mindtick("ranges")
+
+	db, err := store.LoadMindtick()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	ids := 30
+
+	// add 100 random messages
+	for id := 0; id < ids; id++ {
+		os.Args = []string{"mindtick"}
+		tag := []string{"win", "note", "fix", "task"}[rand.IntN(4)]
+		args = append(args, tag, tagMessages[tag][rand.IntN(len(tagMessages[tag]))])
+
+		addArgs(args)
+		command.Exec()
+		args = args[:0]
+
+	}
+
+	for id := range ids {
+		behindNow := time.Now().Add(-time.Duration(rand.IntN(7*24)) * time.Hour).Add(-time.Duration(rand.IntN(60)) * time.Minute)
+		store.ChangeTimestamp(db, id, behindNow)
+	}
+
+	mindtick("win -if youre reading this, message is over a week old!")
+	store.ChangeTimestamp(db, ids, time.Now().Add(-time.Hour*24*8))
+	mindtick("win -Hello World!")
+	store.ChangeTimestamp(db, ids+1, time.Now().Add(-time.Hour*24*7))
+
+	mindtick("view")
+	// mindtick("view task")
+	// mindtick("view week note")
+	mindtick("view win month")
+
+	mindtick("help")
+
+	mindtick("delete")
+	// IMPORTANT: Restore original state
+	defer func() { os.Args = oldArgs }()
+
 }
