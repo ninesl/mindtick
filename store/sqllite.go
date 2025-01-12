@@ -136,9 +136,9 @@ var (
 	}
 	RangeToTime = map[Range]time.Time{
 		TODAY:     time.Now().Truncate(24 * time.Hour),
-		YESTERDAY: time.Now().AddDate(0, 0, -1).Truncate(24 * time.Hour),
-		WEEK:      time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour),
-		MONTH:     time.Now().AddDate(0, -1, 0).Truncate(24 * time.Hour),
+		YESTERDAY: time.Now().AddDate(0, 0, -1).Truncate(24 * time.Hour).Add(24 * time.Hour),
+		WEEK:      time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour).Add(24 * time.Hour),
+		MONTH:     time.Now().AddDate(0, -1, 0).Truncate(24 * time.Hour).Add(24 * time.Hour),
 	}
 )
 
@@ -186,4 +186,13 @@ func processRows(rows *sql.Rows) ([]messages.Message, error) {
 		msgs = append(msgs, msg)
 	}
 	return msgs, nil
+}
+
+// `mindtick edit` command?
+func ChangeTimestamp(db *sql.DB, id int, timestamp time.Time) error {
+	_, err := db.Exec("UPDATE messages SET timestamp = ? WHERE id = ?", timestamp, id)
+	if err != nil {
+		return fmt.Errorf("unable to update timestamp: %v", err)
+	}
+	return nil
 }
