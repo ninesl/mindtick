@@ -154,25 +154,17 @@ func RenderMessages(msgs ...Message) {
 	}
 }
 
-func NewMessage(msgTypeStr string, msg string) (Message, error) {
-	var msgType Tag
+func NewMessage(tagStr string, msg string) (Message, error) {
+	tag := StrToTag[tagStr]
 
-	switch msgTypeStr {
-	case "win":
-		msgType = WIN
-	case "note":
-		msgType = NOTE
-	case "fix":
-		msgType = FIX
-	case "task":
-		msgType = TASK
-	default:
-		return Message{}, fmt.Errorf("invalid message type: %s", ColorizeStr(msgTypeStr, White, BrightPurpleBg))
-	}
+	// if tag == ANYTAG { // should never get here
+	// 	panic("unknown view tag " + tagStr)
+	// 	// return Message{}, fmt.Errorf("unknown view tag %s", tagStr)
+	// }
 
 	return Message{
 		Timestamp: time.Now(),
 		Msg:       msg,
-		Tag:       msgType,
+		Tag:       tag,
 	}, nil
 }
