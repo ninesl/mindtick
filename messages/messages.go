@@ -7,14 +7,14 @@ import (
 
 // bright purple, cyan, green, yellow
 var (
-	winTag  = ColorizeStr("  win", Bold, Yellow, GreenBg)
-	winBg   = ColorizeStr("     ", Bold, Yellow, GreenBg)
-	noteTag = ColorizeStr(" note", Bold, Yellow, CyanBg)
-	noteBg  = ColorizeStr("     ", Bold, Yellow, CyanBg)
-	fixTag  = ColorizeStr("  fix", Bold, Yellow, YellowBg)
-	fixBg   = ColorizeStr("     ", Bold, Yellow, YellowBg)
-	taskTag = ColorizeStr(" task", Bold, Yellow, PurpleBg)
-	taskBg  = ColorizeStr("     ", Bold, Yellow, PurpleBg)
+	winTag  = ColorizeStr("  win", Bold, BrightWhite, GreenBg)
+	winBg   = ColorizeStr("     ", Bold, BrightWhite, GreenBg)
+	noteTag = ColorizeStr(" note", Bold, BrightWhite, CyanBg)
+	noteBg  = ColorizeStr("     ", Bold, BrightWhite, CyanBg)
+	fixTag  = ColorizeStr("  fix", Bold, BrightWhite, YellowBg)
+	fixBg   = ColorizeStr("     ", Bold, BrightWhite, YellowBg)
+	taskTag = ColorizeStr(" task", Bold, BrightWhite, PurpleBg)
+	taskBg  = ColorizeStr("     ", Bold, BrightWhite, PurpleBg)
 
 	redTag          = ColorizeStr("red", Bold, Red, RedBg)
 	blackTag        = ColorizeStr("black", Bold, BlackBg)
