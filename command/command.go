@@ -34,7 +34,7 @@ func Help() error {
 	var sb strings.Builder
 	sb.WriteString(Ver)
 	sb.WriteString("\nUsage\n")
-	sb.WriteString(messages.ColorizeStr("mindtick <MessageStrategy>\n", messages.BrightGreen))
+	sb.WriteString(messages.ColorizeStr("mindtick command args\n", messages.BrightGreen))
 	sb.WriteString("\nCommands\n")
 	for _, cmd := range commandOrder {
 		sb.WriteString(helpLine(cmd, commandsHelp[cmd]))
@@ -44,6 +44,7 @@ func Help() error {
 	sb.WriteString(plannedFeatureLine("delete <id>", "Delete a message by id"))
 	sb.WriteString(plannedFeatureLine("edit <id> <new message>", "Edit a message by id"))
 	sb.WriteString(plannedFeatureLine("{keyword}", "filter by substring"))
+	sb.WriteString(plannedFeatureLine("{YYYY-MM-DD}", "filter by date"))
 
 	fmt.Print(sb.String())
 	return nil
@@ -119,7 +120,7 @@ func processArgs() error {
 	}
 
 	if _, ok := messages.StrToTag[os.Args[1]]; ok {
-		return AddMessage()
+		return commands["tag"]()
 	}
 
 	if len(os.Args) > 1 {
