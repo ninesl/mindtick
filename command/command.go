@@ -1,58 +1,54 @@
 package command
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"strings"
+
+	_ "embed"
 
 	"github.com/ninesl/mindtick/messages"
 	"github.com/ninesl/mindtick/store"
 )
 
+func Exec() {
+	if err := processArgs(); err != nil {
+		fmt.Println(err)
+	}
+}
+
 var (
 	useHelpMsg    = fmt.Sprintf("use %s for more information\n", messages.ColorizeStr("mindtick help", messages.BrightGreen))
-	messagePrefix = "-" // how to ignore =:zsh or >:newfile, etc? custom prefix?
+	messagePrefix = "-" // FIXME: how to ignore =:zsh or >:newfilem ' ", other chars, etc? custom prefix?
 )
 
-func helpLine(command, description string) string {
+func helpLine(MessageStrategy, description string) string {
 	return fmt.Sprintf(
 		"%10s\t%s\n",
-		messages.ColorizeStr(command, messages.BrightGreen),
+		messages.ColorizeStr(MessageStrategy, messages.BrightGreen),
 		description,
 	)
 }
 
-func plannedFeatureLine(command, description string) string {
+func plannedFeatureLine(MessageStrategy, description string) string {
 	return fmt.Sprintf(
 		"%45s\t%s\n",
-		messages.ColorizeStr(command, messages.BrightCyan),
+		messages.ColorizeStr(MessageStrategy, messages.BrightCyan),
 		description,
 	)
 }
 
-/*
-unsure if this true/false is a good way to handle errors
-
-	returns `true` if there was an error, prints the error
-	returns `false` if there was no error
-*/
-func isHandleGenericError(err error) bool {
-	if err != nil {
-		fmt.Print(messages.ColorizeStr(err.Error(), messages.BrightRed))
-		return true
-	}
-	return false
-}
-
-const version = "v0.1.1"
+//go:embed version
+var version string
 
 func help() {
 	var sb strings.Builder
 	versionStr := fmt.Sprintf("mindtick %s", version)
 	sb.WriteString(messages.ColorizeStr(versionStr, messages.Bold, messages.BrightRedBg))
 	sb.WriteString("\nUsage\n")
-	sb.WriteString(messages.ColorizeStr("mindtick <command>\n", messages.BrightGreen))
-	sb.WriteString("\nCommands\n")
+	sb.WriteString(messages.ColorizeStr("mindtick <MessageStrategy>\n", messages.BrightGreen))
+	sb.WriteString("\nMessageStrategys\n")
 	sb.WriteString(helpLine("help", "Display this help message"))
 	sb.WriteString(helpLine("new", "Create a new mindtick file in the current directory"))
 	sb.WriteString(helpLine("delete", "Delete the mindtick file in the current directory"))
@@ -67,7 +63,7 @@ func help() {
 	sb.WriteString(plannedFeatureLine("export {tags} {filetype}", "Export all messages to a .pdf/csv/txt file based off specific tags"))
 	sb.WriteString(plannedFeatureLine("delete <id>", "Delete a message by id"))
 	sb.WriteString(plannedFeatureLine("edit <id> <new message>", "Edit a message by id"))
-	sb.WriteString(plannedFeatureLine("planned filter {tags}", "Used to filter messages based off specific tags in various commands"))
+	sb.WriteString(plannedFeatureLine("planned filter {tags}", "Used to filter messages based off specific tags in various MessageStrategys"))
 	sb.WriteString(plannedFeatureLine("{today,yesterday,week,YYYY-MM-DD}", "available date options"))
 	sb.WriteString(plannedFeatureLine("{win,note,fix,task}", "filter by message type"))
 	sb.WriteString(plannedFeatureLine("{keyword}", "filter by substring"))
@@ -75,78 +71,65 @@ func help() {
 	fmt.Print(sb.String())
 }
 
-func ProcessArgs() {
-	if len(os.Args) < 2 {
-		fmt.Printf("No arguments provided, %s", useHelpMsg)
-		return
+func View(db *sql.DB) error {
+	args := os.Args
+
+	if len(args) == 2 { // default behavior
+		store.Messages(db, messages.ANYTAG, messages.ANYTIME)
 	}
 
-	// fmt.Println(os.Args[1])
+	rangeType := messages.StrToRange[args[2]]
+	msgType := messages.StrToMsgType[args[2]]
+
+	var msgs []messages.Message
+	if rangeType != messages.ANYTIME && msgType != messages.ANYTAG {
+		var err error
+		msgs, err = store.Messages(db, msgType, rangeType)
+		if err != nil {
+			return err
+		}
+	}
+	messages.RenderMessages(msgs...)
+
+	return nil
+}
+
+func processArgs() error {
+	if len(os.Args) < 2 {
+		return fmt.Errorf("mindtick requires at least one argument, %s", useHelpMsg)
+	}
 
 	switch os.Args[1] {
+	case "help":
+		help()
 	case "new":
 		if len(os.Args) > 2 {
-			fmt.Printf("%s does not take any arguments, %s", messages.ColorizeStr("mindtick new", messages.BrightGreen), useHelpMsg)
+			return fmt.Errorf("%s does not take any arguments, %s", messages.ColorizeStr("mindtick new", messages.BrightGreen), useHelpMsg)
 		}
-		err := store.New()
-		if err != nil {
-			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-			return
-		}
-		fmt.Println(messages.ColorizeStr("mindtick intialized", messages.BrightPurple))
+		return store.New()
 	case "delete":
 		if len(os.Args) > 2 {
 			fmt.Printf("%s does not take any arguments, %s", messages.ColorizeStr("mindtick delete", messages.BrightGreen), useHelpMsg)
 		}
-		err := store.Delete()
-		if err != nil {
-			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-			return
-		} else {
-			fmt.Println(messages.ColorizeStr("mindtick deleted", messages.BrightPurple))
-		}
-	case "help":
-		help()
-
+		return store.Delete()
 	case "win", "task", "note", "fix": // combine all message types into a single case
-		err := processMessage()
-		if !isHandleGenericError(err) {
-			return
+		db, err := store.LoadMindtick()
+		if err != nil {
+			return err
 		}
+		return AddMessage(db)
 	case "view":
 		db, err := store.LoadMindtick()
 		if err != nil {
-			fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-			return
+			return err
 		}
-		var msgs []messages.Message
-		if len(os.Args) == 2 {
-			msgs, err = store.GetMessages(db) // TODO: view by date, type, etc
-			if err != nil {
-				fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-				return
-			}
-		} else if len(os.Args) == 3 {
-			msgType := messages.MessageTypeStr[os.Args[2]]
-			msgs, err = store.GetMessagesByType(db, msgType)
-			if err != nil {
-				fmt.Println(messages.ColorizeStr(err.Error(), messages.BrightRed))
-				return
-			}
-		} else {
-			fmt.Println("view command only takes up to 3 arguments", useHelpMsg)
-		}
-		messages.RenderMessages(msgs...)
-	default:
-		fmt.Printf("unknown mindtick argument %s, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
+		return View(db)
 	}
+
+	return fmt.Errorf("unknown mindtick argument %s, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
 }
 
-func processMessage() error {
-	db, err := store.LoadMindtick()
-	if err != nil {
-		return err
-	}
+func AddMessage(db *sql.DB) error {
 
 	if len(os.Args) < 3 {
 		return fmt.Errorf("mindtick %s must have a message, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
