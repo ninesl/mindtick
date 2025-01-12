@@ -38,20 +38,47 @@ run `mindtick new` to create a new `store.mindtick` in your project's root direc
 
 ## Commands
 
-### Usage: `mindtick <command>`
+### Usage: `mindtick command args`
 
 | Command   | Description                                         |
 |-----------|-----------------------------------------------------|
 | `help`    | Display this help message.                         |
+| `version` | Display the current version of mindtick            |
 | `new`     | Create a new `store.mindtick` file in the current directory. |
 | `delete`  | Delete the `store.mindtick` file in the current directory. |
-| `view`    | Display all messages in the current `store.mindtick` file. |
-| `win`     | Add a win message: `mindtick win -<message>`.      |
-| `note`    | Add a note message: `mindtick note -<message>`.    |
-| `fix`     | Add a fix message: `mindtick fix -<message>`.      |
-| `task`    | Add a task message: `mindtick task -<message>`.    |
+| `view`    | Display all messages in current `store.mindtick`   |
+| `view [tag]` | Display messages filtered by tag type           |
+| `view [range]` | Display messages filtered by time range       |
+| `view [tag] [range]` | Display messages filtered by both tag and range |
+| `view [range] [tag]` | Display messages filtered by both tag and range |
+| `[tag]`     | Add a win message: `mindtick tag -your message`. |
+| `tags`    | Display all available tags and usage information   |
+| `ranges`  | Display all available time range options           |
+
+### Tags
+Available tags for creating new messages or filtering:
+- `win`
+- `note`
+- `fix`
+- `task`
+
+### Time Ranges
+Available time ranges for filtering:
+- `today` - Show messages from today only
+- `yesterday` - Show messages from yesterday
+- `week` - Show messages from the last 7 days
+- `month` - Show messages from the last month
 
 ## Examples
+Basic usage:
+```bash
+mindtick win -finally fixed that nasty bug
+mindtick note -remember to update dependencies
+mindtick view week          # show all messages from last 7 days
+mindtick view task month    # show only tasks from the last month
+mindtick view yesterday fix # show only fixes since yesterday
+mindtick view win           # show only win messages
+```
 
 The output after running `mindtick view`
 
@@ -69,9 +96,7 @@ Adding a message to your current `store.mindtick`
 | `export {tags} {filetype}`           | Export messages to `.pdf`, `.csv`, or `.txt` based on tags. |
 | `delete <id>`                        | Delete a specific message by its unique ID.                |
 | `edit <id> <new message>`            | Edit an existing message by its ID.                        |
-| `filter {tags}`                      | Filter messages in various commands by tags.               |
-| `{win, note, fix, task}`             | Filter messages by type (win, note, fix, task).            |
 | `{keyword}`                          | Search messages by a specific keyword or substring.        |
-| `{today, yesterday, week, YYYY-MM-DD}` | Filter messages by date ranges.                           |
+| `{YYYY-MM-DD}` | Filter messages by date.                           |
 
 I also am planning on implementing user-created tags and the ability to turn off color codes (for terminals that can't render it)
