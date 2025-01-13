@@ -80,23 +80,20 @@ mindtick view yesterday fix # show only fixes since yesterday
 mindtick view win           # show only win messages
 ```
 
-The output after running `mindtick view`
+Example initializing and writing a `win` message
 
-![example mindtick view](readme_assets/view.png)
+![example mindtick win -Hello world!](readme_assets/winmsg.png)
 
-Adding a message to your current `store.mindtick`
+Example usages of `mindtick view`
 
-`mindtick win -your message goes here`
-
-![example adding fix tag msg](readme_assets/addingmsg.png)
+![example mindtick view](readme_assets/view_task.png)
 
 | Planned Features                              |                                                |
 |--------------------------------------|------------------------------------------------------------|
-| `search {tags}`                      | Display messages filtered by specific tags.                |
 | `export {tags} {filetype}`           | Export messages to `.pdf`, `.csv`, or `.txt` based on tags. |
 | `delete <id>`                        | Delete a specific message by its unique ID.                |
 | `edit <id> <new message>`            | Edit an existing message by its ID.                        |
-| `{keyword}`                          | Search messages by a specific keyword or substring.        |
+| `{keyword}`                          | Filter messages by a specific keyword or substring.        |
 | `{YYYY-MM-DD}` | Filter messages by date.                           |
 
 I also am planning on implementing user-created tags and the ability to turn off color codes (for terminals that can't render it)
