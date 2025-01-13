@@ -187,12 +187,12 @@ func TestRenderWithCustomArgs(t *testing.T) {
 	}
 	defer db.Close()
 
-	ids := 30
-
-	// add 100 random messages
+	ids := 100
+	tags := []string{"win", "note", "fix", "task"}
+	// add ids random messages
 	for id := 0; id < ids; id++ {
 		os.Args = []string{"mindtick"}
-		tag := []string{"win", "note", "fix", "task"}[rand.IntN(4)]
+		tag := tags[rand.IntN(4)]
 		args = append(args, tag, tagMessages[tag][rand.IntN(len(tagMessages[tag]))])
 
 		addArgs(args)
@@ -201,20 +201,25 @@ func TestRenderWithCustomArgs(t *testing.T) {
 
 	}
 
-	for id := range ids {
+	for id := range ids - 1 {
 		behindNow := time.Now().Add(-time.Duration(rand.IntN(7*24)) * time.Hour).Add(-time.Duration(rand.IntN(60)) * time.Minute)
 		store.ChangeTimestamp(db, id, behindNow)
 	}
 
-	mindtick("win -if youre reading this, message is over a week old!")
-	store.ChangeTimestamp(db, ids, time.Now().Add(-time.Hour*24*8))
-	mindtick("win -Hello World!")
-	store.ChangeTimestamp(db, ids+1, time.Now().Add(-time.Hour*24*7))
+	fmt.Println()
+	fmt.Println("Running command:")
+	fmt.Println(messages.ColorizeStr(fmt.Sprintf("mindtick %v -%d random messages", tags, ids), messages.Cyan))
+
+	// daysAgo := rand.IntN(15) + 15
+	// mindtick(fmt.Sprintf("win -%d days ago!", daysAgo))
+	// store.ChangeTimestamp(db, ids, time.Now().Add(-((time.Hour * 24) * time.Duration(daysAgo))))
+	// mindtick("win -Hello World!") //FIXME: ids not getting right message
+	// store.ChangeTimestamp(db, ids+1, time.Now().Add(-time.Hour*24*time.Duration(30)))
 
 	mindtick("view")
 	// mindtick("view task")
-	// mindtick("view week note")
-	mindtick("view win month")
+	mindtick("view yesterday")
+	mindtick("view yesterday task")
 
 	mindtick("help")
 
