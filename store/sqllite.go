@@ -12,7 +12,7 @@ import (
 	//https://pkg.go.dev/modernc.org/sqlite?utm_source=godoc
 )
 
-const dbFileName = "store.mindtick"
+const DBFileName = "store.mindtick"
 
 func LoadMindtick() (*sql.DB, error) {
 	dir, err := os.Getwd()
@@ -21,12 +21,12 @@ func LoadMindtick() (*sql.DB, error) {
 	}
 
 	for {
-		dbPath := dir + string(os.PathSeparator) + dbFileName
+		dbPath := dir + string(os.PathSeparator) + DBFileName
 		// fmt.Println("Checking", dbPath)
 		if _, err := os.Stat(dbPath); err == nil {
 			db, err := sql.Open("sqlite", dbPath)
 			if err != nil {
-				return nil, fmt.Errorf("unable to open %s. Is the file corrupted? %v", dbFileName, err)
+				return nil, fmt.Errorf("unable to open %s. Is the file corrupted? %v", DBFileName, err)
 			}
 			return db, nil
 		}
@@ -37,7 +37,7 @@ func LoadMindtick() (*sql.DB, error) {
 			return nil, fmt.Errorf("unable to resolve parent directory: %v", err)
 		}
 		if parentDir == dir {
-			return nil, fmt.Errorf("%s file not found\n%s to create a new mindtick", dbFileName, messages.ColorizeStr("mindtick new", messages.BrightGreen))
+			return nil, fmt.Errorf("%s file not found\n%s to create a new mindtick", DBFileName, messages.ColorizeStr("mindtick new", messages.BrightGreen))
 		}
 		dir = parentDir
 	}
@@ -47,10 +47,10 @@ func LoadMindtick() (*sql.DB, error) {
 // `mindtick new` command
 func New() error {
 	// Verify if file exists
-	if _, err := os.Stat(dbFileName); os.IsNotExist(err) {
+	if _, err := os.Stat(DBFileName); os.IsNotExist(err) {
 		// do nothing
 	} else {
-		return fmt.Errorf("%s already exists", dbFileName)
+		return fmt.Errorf("%s already exists", DBFileName)
 	}
 
 	// check if .gitignore exists and append store.mindtick
@@ -60,14 +60,14 @@ func New() error {
 			return fmt.Errorf("failed to open .gitignore: %v", err)
 		}
 		defer gitignore.Close()
-		if _, err := gitignore.WriteString("\n" + dbFileName + "\n"); err != nil {
+		if _, err := gitignore.WriteString("\n" + DBFileName + "\n"); err != nil {
 			return fmt.Errorf("failed to write to .gitignore: %v", err)
 		}
 	}
 
-	file, err := os.Create(dbFileName)
+	file, err := os.Create(DBFileName)
 	if err != nil {
-		return fmt.Errorf("failed to create %s %v", dbFileName, err)
+		return fmt.Errorf("failed to create %s %v", DBFileName, err)
 	}
 	defer file.Close()
 
@@ -82,9 +82,9 @@ func New() error {
 }
 
 func Delete() error {
-	err := os.Remove(dbFileName)
+	err := os.Remove(DBFileName)
 	if err != nil {
-		return fmt.Errorf("failed to remove %s: %v", dbFileName, err)
+		return fmt.Errorf("failed to remove %s: %v", DBFileName, err)
 	}
 	return fmt.Errorf(messages.ColorizeStr("mindtick deleted", messages.BrightPurple))
 }
