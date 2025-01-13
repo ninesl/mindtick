@@ -15,7 +15,7 @@ NOTE: The ANSI colors only work in terminals that support it, if you were to use
 
 ## Installation
 
-Make sure you have the most recent version of go installed *(1.24.4 at the time of writing)*
+Make sure you have the most recent version of go installed *(1.23.4 at the time of writing)*
 
 You can find the most recent release of go here: https://go.dev/dl/
 
