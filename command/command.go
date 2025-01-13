@@ -21,6 +21,7 @@ func Exec() {
 var version string
 
 var (
+	MINDTICK      string = messages.ColorizeStr("mindtick", messages.BrightGreen)
 	Ver           string = messages.ColorizeStr(fmt.Sprintf("mindtick %s", version), messages.Bold, messages.BrightRedBg)
 	useHelpMsg           = fmt.Sprintf("use %s for more information\n", messages.ColorizeStr("mindtick help", messages.BrightGreen))
 	messagePrefix        = "-" // FIXME: how to ignore =:zsh or >:newfilem ' ", other chars, etc? custom prefix?
@@ -70,9 +71,9 @@ func Ranges() error {
 	var sb strings.Builder
 	sb.WriteString(helpLine("USAGE: ", messages.ColorizeStr("mindtick view range", messages.BrightPurple)))
 	sb.WriteString(helpLine("", messages.ColorizeStr("mindtick view range tag", messages.BrightPurple)))
-	for str, rangeValue := range store.StrToRange {
-		date := messages.RenderDate(store.RangeToTime[rangeValue])
-		sb.WriteString(plannedFeatureLine(str, fmt.Sprintf("Filter messages from today to %s", date)))
+	for i := range len(store.RangeOrder) {
+		date := messages.RenderDate(store.RangeToTime[store.RangeOrder[i]]())
+		sb.WriteString(plannedFeatureLine(store.RangeToStr[store.RangeOrder[i]], fmt.Sprintf("filter messages now to %s", date)))
 	}
 	fmt.Print(sb.String())
 	return nil
@@ -103,9 +104,9 @@ var (
 	}
 	commandsHelp = map[string]string{
 		"help":    "Display this help message",
-		"version": "Display the current version of mindtick",
-		"new":     "Create a new mindtick file in the current directory",
-		"delete":  "Delete the mindtick file in the current directory",
+		"version": fmt.Sprintf("Display the current version of %s", MINDTICK),
+		"new":     fmt.Sprintf("Create a new %s file in the current directory", store.COLORDBFILENAME),
+		"delete":  fmt.Sprintf("Delete the %s file in the current directory", store.COLORDBFILENAME),
 		"tag":     fmt.Sprintf("%s | adds a message", messages.ColorizeStr("-your message", messages.BrightPurple)),
 		"view":    fmt.Sprintf("optional: %s | Display messages by tag and/or range", messages.ColorizeStr("tag range", messages.BrightPurple)),
 		"tags":    fmt.Sprintf("Display all available tags, used in %s and %s", messages.ColorizeStr("view", messages.BrightGreen), messages.ColorizeStr("tag", messages.BrightGreen)),
@@ -154,7 +155,7 @@ func View() error {
 		}
 
 		if len(msgs) == 0 {
-			return fmt.Errorf(messages.ColorizeStr("no messages found", messages.BrightRed))
+			return fmt.Errorf("%s is empty, %s", messages.ColorizeStr(store.DBFileName, messages.BrightRed), useHelpMsg)
 		}
 		messages.RenderMessages(msgs...)
 		return nil
@@ -211,8 +212,8 @@ func AddMessage() error {
 		return fmt.Errorf("mindtick %s must have a message, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
 	}
 	if os.Args[2][0:1] != messagePrefix {
-		tip := fmt.Sprintf("mindtick %s %vyour message", os.Args[1], messagePrefix)
-		return fmt.Errorf("mindtick messages must start with %v. example usage: %s\n%s", messagePrefix, messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
+		tip := fmt.Sprintf("mindtick %s %v%s", os.Args[1], messagePrefix, strings.Join(os.Args[2:], " "))
+		return fmt.Errorf("mindtick messages must start with %v\nexample usage: %s\n%s", messages.ColorizeStr(messagePrefix, messages.BrightGreen), messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
 	}
 
 	// fmt.Println(os.Args)
