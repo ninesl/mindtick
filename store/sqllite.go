@@ -14,6 +14,8 @@ import (
 
 const DBFileName = "store.mindtick"
 
+var COLORDBFILENAME = messages.ColorizeStr(DBFileName, messages.Purple, messages.BrightCyanBg)
+
 func LoadMindtick() (*sql.DB, error) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -26,7 +28,7 @@ func LoadMindtick() (*sql.DB, error) {
 		if _, err := os.Stat(dbPath); err == nil {
 			db, err := sql.Open("sqlite", dbPath)
 			if err != nil {
-				return nil, fmt.Errorf("unable to open %s. Is the file corrupted? %v", DBFileName, err)
+				return nil, fmt.Errorf("unable to open %s. Is the file corrupted? %v", COLORDBFILENAME, err)
 			}
 			return db, nil
 		}
@@ -37,7 +39,7 @@ func LoadMindtick() (*sql.DB, error) {
 			return nil, fmt.Errorf("unable to resolve parent directory: %v", err)
 		}
 		if parentDir == dir {
-			return nil, fmt.Errorf("%s file not found\n%s to create a new mindtick", DBFileName, messages.ColorizeStr("mindtick new", messages.BrightGreen))
+			return nil, fmt.Errorf("%s file not found\n%s to create a new mindtick", COLORDBFILENAME, messages.ColorizeStr("mindtick new", messages.BrightGreen))
 		}
 		dir = parentDir
 	}
@@ -50,9 +52,10 @@ func New() error {
 	if _, err := os.Stat(DBFileName); os.IsNotExist(err) {
 		// do nothing
 	} else {
-		return fmt.Errorf("%s already exists", DBFileName)
+		return fmt.Errorf("%s already exists", COLORDBFILENAME)
 	}
 
+	//TODO: only append to git ignore if DBFileName is not already in there
 	// check if .gitignore exists and append store.mindtick
 	if _, err := os.Stat(".gitignore"); err == nil {
 		gitignore, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -67,7 +70,7 @@ func New() error {
 
 	file, err := os.Create(DBFileName)
 	if err != nil {
-		return fmt.Errorf("failed to create %s %v", DBFileName, err)
+		return fmt.Errorf("failed to create %s %v", COLORDBFILENAME, err)
 	}
 	defer file.Close()
 
@@ -78,15 +81,19 @@ func New() error {
 	}
 	createSchema(db)
 
-	return fmt.Errorf(messages.ColorizeStr("mindtick intialized", messages.BrightPurple))
+	return fmt.Errorf("%s %s", COLORDBFILENAME, messages.ColorizeStr("intialized", messages.BrightPurple))
 }
 
 func Delete() error {
-	err := os.Remove(DBFileName)
+	_, err := LoadMindtick()
 	if err != nil {
-		return fmt.Errorf("failed to remove %s: %v", DBFileName, err)
+		return err
 	}
-	return fmt.Errorf(messages.ColorizeStr("mindtick deleted", messages.BrightPurple))
+	err = os.Remove(DBFileName)
+	if err != nil {
+		return fmt.Errorf("failed to remove %s\n%v", COLORDBFILENAME, err)
+	}
+	return fmt.Errorf("%s %s", COLORDBFILENAME, messages.ColorizeStr("deleted", messages.BrightPurple))
 }
 
 func createSchema(db *sql.DB) error {
@@ -134,12 +141,34 @@ var (
 		"week":      WEEK,
 		"month":     MONTH,
 	}
-	RangeToTime = map[Range]time.Time{
-		TODAY:     time.Now().Truncate(24 * time.Hour),
-		YESTERDAY: time.Now().AddDate(0, 0, -1).Truncate(24 * time.Hour).Add(24 * time.Hour),
-		WEEK:      time.Now().AddDate(0, 0, -7).Truncate(24 * time.Hour).Add(24 * time.Hour),
-		MONTH:     time.Now().AddDate(0, -1, 0).Truncate(24 * time.Hour).Add(24 * time.Hour),
+	RangeToStr = map[Range]string{ // dumb
+		TODAY:     "today",
+		YESTERDAY: "yesterday",
+		WEEK:      "week",
+		MONTH:     "month",
 	}
+	RangeToTime = map[Range]func() time.Time{
+		TODAY: func() time.Time {
+			now := time.Now()
+			return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		},
+		YESTERDAY: func() time.Time {
+			now := time.Now()
+			yesterday := now.AddDate(0, 0, -1)
+			return time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 0, 0, 0, 0, now.Location())
+		},
+		WEEK: func() time.Time {
+			now := time.Now()
+			weekAgo := now.AddDate(0, 0, -7)
+			return time.Date(weekAgo.Year(), weekAgo.Month(), weekAgo.Day(), 0, 0, 0, 0, now.Location())
+		},
+		MONTH: func() time.Time {
+			now := time.Now()
+			monthAgo := now.AddDate(0, -1, 0)
+			return time.Date(monthAgo.Year(), monthAgo.Month(), monthAgo.Day(), 0, 0, 0, 0, now.Location())
+		},
+	}
+	RangeOrder = []Range{TODAY, YESTERDAY, WEEK, MONTH}
 )
 
 func Messages(db *sql.DB, tag messages.Tag, rangeType Range) ([]messages.Message, error) {
@@ -153,8 +182,8 @@ func Messages(db *sql.DB, tag messages.Tag, rangeType Range) ([]messages.Message
 	}
 
 	if rangeType != ANYTIME && tag == messages.ANYTAG {
-		SQLstmt = "SELECT * FROM messages WHERE timestamp >= ? ORDER BY timestamp"
-		rows, err = db.Query(SQLstmt, RangeToTime[rangeType])
+		SQLstmt = "SELECT * FROM messages WHERE timestamp > ? ORDER BY timestamp"
+		rows, err = db.Query(SQLstmt, RangeToTime[rangeType]())
 	}
 
 	if rangeType == ANYTIME && tag != messages.ANYTAG {
@@ -164,7 +193,7 @@ func Messages(db *sql.DB, tag messages.Tag, rangeType Range) ([]messages.Message
 
 	if rangeType != ANYTIME && tag != messages.ANYTAG {
 		SQLstmt = "SELECT * FROM messages WHERE msgtype = ? AND timestamp >= ? ORDER BY timestamp"
-		rows, err = db.Query(SQLstmt, tag, RangeToTime[rangeType])
+		rows, err = db.Query(SQLstmt, tag, RangeToTime[rangeType]())
 	}
 
 	if err != nil {
