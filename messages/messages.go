@@ -7,14 +7,14 @@ import (
 
 // bright purple, cyan, green, yellow
 var (
-	winTag  = ColorizeStr("  win", Bold, BrightWhite, GreenBg)
-	winBg   = ColorizeStr("     ", Bold, BrightWhite, GreenBg)
-	noteTag = ColorizeStr(" note", Bold, BrightWhite, CyanBg)
-	noteBg  = ColorizeStr("     ", Bold, BrightWhite, CyanBg)
-	fixTag  = ColorizeStr("  fix", Bold, BrightWhite, YellowBg)
-	fixBg   = ColorizeStr("     ", Bold, BrightWhite, YellowBg)
-	taskTag = ColorizeStr(" task", Bold, BrightWhite, PurpleBg)
-	taskBg  = ColorizeStr("     ", Bold, BrightWhite, PurpleBg)
+	// winTag  = ColorizeStr("  win", Bold, BrightWhite, GreenBg)
+	// winBg   = ColorizeStr("     ", Bold, BrightWhite, GreenBg)
+	// noteTag = ColorizeStr(" note", Bold, BrightWhite, CyanBg)
+	// noteBg  = ColorizeStr("     ", Bold, BrightWhite, CyanBg)
+	// fixTag  = ColorizeStr("  fix", Bold, BrightWhite, YellowBg)
+	// fixBg   = ColorizeStr("     ", Bold, BrightWhite, YellowBg)
+	// taskTag = ColorizeStr(" task", Bold, BrightWhite, PurpleBg)
+	// taskBg  = ColorizeStr("     ", Bold, BrightWhite, PurpleBg)
 
 	redTag          = ColorizeStr("red", Bold, Red, RedBg)
 	blackTag        = ColorizeStr("black", Bold, BlackBg)
@@ -32,19 +32,6 @@ var (
 	brightPurpleTag = ColorizeStr("brightPurple", Bold, BrightPurple, BrightPurpleBg)
 	brightCyanTag   = ColorizeStr("brightCyan", Bold, BrightCyan, BrightCyanBg)
 	brightWhiteTag  = ColorizeStr("brightWhite", Bold, BrightWhite, BrightWhiteBg)
-
-	Tags = map[Tag]string{
-		WIN:  winTag,
-		NOTE: noteTag,
-		FIX:  fixTag,
-		TASK: taskTag,
-	}
-	bgs = map[Tag]string{
-		WIN:  winBg,
-		NOTE: noteBg,
-		FIX:  fixBg,
-		TASK: taskBg,
-	}
 )
 
 const (
@@ -73,14 +60,53 @@ const (
 	NOTE
 	FIX
 	TASK
+	URL
+	WORK
 )
 
+// TODO: FIXME: refactor this mess when impl custom tags
+// To add a hardcoded tag, follow these steps:
+// 1. Add a new constant to the Tag type
+// 2. Add a new constant to the Tags map
+// 3. Add a new constant to the bgs map
+// 4. Add a new constant to the StrToTag map
 var (
+	winTag   = ColorizeStr("  win", GreenBg, Bold, BrightBlack)
+	winBg    = ColorizeStr("     ", GreenBg, Bold, BrightBlack)
+	noteTag  = ColorizeStr(" note", CyanBg, Bold, BrightBlack)
+	noteBg   = ColorizeStr("     ", CyanBg, Bold, BrightBlack)
+	fixTag   = ColorizeStr("  fix", BrightYellowBg, Bold, BrightBlack)
+	fixBg    = ColorizeStr("     ", BrightYellowBg, Bold, BrightBlack)
+	taskTag  = ColorizeStr(" task", PurpleBg, Bold, BrightBlack)
+	taskBg   = ColorizeStr("     ", PurpleBg, Bold, BrightBlack)
+	urlTag   = ColorizeStr("  url", BlackBg, Bold, BrightBlue)
+	urlBg    = ColorizeStr("     ", BlackBg, Bold, BrightBlue)
+	workTag  = ColorizeStr(" work", BrightWhiteBg, Bold, BrightBlack)
+	workBg   = ColorizeStr("     ", BrightWhiteBg, Bold, BrightBlack)
+	TagOrder = []Tag{WIN, NOTE, FIX, TASK, URL, WORK}
 	StrToTag = map[string]Tag{
 		"win":  WIN,
 		"note": NOTE,
 		"fix":  FIX,
 		"task": TASK,
+		"url":  URL,
+		"work": WORK,
+	}
+	Tags = map[Tag]string{
+		WIN:  winTag,
+		NOTE: noteTag,
+		FIX:  fixTag,
+		TASK: taskTag,
+		URL:  urlTag,
+		WORK: workTag,
+	}
+	bgs = map[Tag]string{
+		WIN:  winBg,
+		NOTE: noteBg,
+		FIX:  fixBg,
+		TASK: taskBg,
+		URL:  urlBg,
+		WORK: workBg,
 	}
 )
 
