@@ -76,7 +76,7 @@ mindtick win -finally fixed that nasty bug
 mindtick note -remember to update dependencies
 mindtick view week          # show all messages from last 7 days
 mindtick view task month    # show only tasks from the last month
-mindtick view yesterday fix # show only fixes since yesterday
+mindtick view yesterday fix # show only fixes since yesterday - notice how the order doesn't matter
 mindtick view win           # show only win messages
 ```
 
