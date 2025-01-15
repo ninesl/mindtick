@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/ninesl/mindtick/messages"
@@ -55,16 +56,13 @@ func New() error {
 		return fmt.Errorf("%s already exists", COLORDBFILENAME)
 	}
 
-	//TODO: only append to git ignore if DBFileName is not already in there
-	// check if .gitignore exists and append store.mindtick
-	if _, err := os.Stat(".gitignore"); err == nil {
-		gitignore, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	//FIXME: only append to git ignore if DBFileName is not already in there
+	// Append to .gitignore if needed
+	content, err := os.ReadFile(".gitignore")
+	if err == nil && !strings.Contains(string(content), DBFileName) {
+		err = os.WriteFile(".gitignore", []byte(string(content)+"\n"+DBFileName+"\n"), 0644)
 		if err != nil {
-			return fmt.Errorf("failed to open .gitignore: %v", err)
-		}
-		defer gitignore.Close()
-		if _, err := gitignore.WriteString("\n" + DBFileName + "\n"); err != nil {
-			return fmt.Errorf("failed to write to .gitignore: %v", err)
+			return fmt.Errorf("failed to update .gitignore: %v", err)
 		}
 	}
 
