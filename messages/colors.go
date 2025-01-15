@@ -7,6 +7,7 @@ type color string
 const (
 	reset color = "\033[0m"
 
+	Black        color = "\033[30m"
 	Red          color = "\033[31m"
 	Green        color = "\033[32m"
 	Yellow       color = "\033[33m"
