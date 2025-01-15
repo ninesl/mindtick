@@ -88,6 +88,10 @@ Example usages of `mindtick view`
 
 ![example mindtick view](readme_assets/view_task.png)
 
+`mindtick tags`
+
+![all available tags](readme_assets/tags.png)
+
 | Planned Features                              |                                                |
 |--------------------------------------|------------------------------------------------------------|
 | `export {tags} {filetype}`           | Export messages to `.pdf`, `.csv`, or `.txt` based on tags. |
