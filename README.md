@@ -88,14 +88,12 @@ run `mindtick new` to create a new `store.mindtick` in your project's root direc
 ### Tags
 Run `mindtick tags` to see all available tags for creating new messages or filtering:
 
-<img src="readme_assets/tags_all.png" style="width:400px" />
+<img src="readme_assets/tags.png" style="width:550px" />
 
 ### Time Ranges
-Available time ranges for filtering:
-- `today` - Show messages from today only
-- `yesterday` - Show messages from yesterday
-- `week` - Show messages from the last 7 days
-- `month` - Show messages from the last month
+Run `mindtick ranges` to see all available ranges for filtering messages:
+
+<img src="readme_assets/ranges.png" style="width:550px" />
 
 
 | Planned Features                              |                                                |
