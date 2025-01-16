@@ -57,7 +57,7 @@ You can find the most recent release of go here: https://go.dev/dl/
 
 After go has been installed, run `go install github.com/ninesl/mindtick@latest`
 
-If your `$PATH` variables are setup correctly *(will be by default)* run `mindtick` in a new terminal window to ensure Mindtick was installed correctly.
+If your `$PATH` variables are setup correctly *(should be by default)* run `mindtick version` in a new terminal window to ensure Mindtick was installed correctly.
 
 ## Why make this instead of a todo.txt?
 
