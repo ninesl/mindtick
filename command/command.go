@@ -120,7 +120,7 @@ func processArgs() error {
 		return fmt.Errorf("mindtick requires at least one argument, %s", useHelpMsg)
 	}
 
-	if _, ok := messages.StrToTag[os.Args[1]]; ok {
+	if _, ok := messages.StrToTag[strings.ToLower(os.Args[1])]; ok { // case insensitivity for tags
 		return commands["tag"]()
 	}
 
@@ -204,15 +204,16 @@ func View() error {
 }
 
 func AddMessage() error {
+	tagCmd := strings.ToLower(os.Args[1]) // case insensitivity for tags
 	db, err := store.LoadMindtick()
 	if err != nil {
 		return err
 	}
 	if len(os.Args) < 3 {
-		return fmt.Errorf("mindtick %s must have a message, %s", messages.ColorizeStr(os.Args[1], messages.BrightPurple), useHelpMsg)
+		return fmt.Errorf("mindtick %s must have a message, %s", messages.ColorizeStr(tagCmd, messages.BrightPurple), useHelpMsg)
 	}
 	if os.Args[2][0:1] != messagePrefix {
-		tip := fmt.Sprintf("mindtick %s %v%s", os.Args[1], messagePrefix, strings.Join(os.Args[2:], " "))
+		tip := fmt.Sprintf("mindtick %s %v%s", tagCmd, messagePrefix, strings.Join(os.Args[2:], " "))
 		return fmt.Errorf("mindtick messages must start with %v\nexample usage: %s\n%s", messages.ColorizeStr(messagePrefix, messages.BrightGreen), messages.ColorizeStr(tip, messages.BrightGreen), useHelpMsg)
 	}
 
@@ -226,7 +227,7 @@ func AddMessage() error {
 	}
 
 	var argMsg = strings.Join(argMsgs, " ")
-	msg, err := messages.NewMessage(os.Args[1], argMsg)
+	msg, err := messages.NewMessage(tagCmd, argMsg)
 	if err != nil {
 		return fmt.Errorf("%s, %s", messages.ColorizeStr(err.Error(), messages.BrightRed), useHelpMsg)
 	}
