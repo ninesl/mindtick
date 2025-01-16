@@ -31,7 +31,7 @@ and how having multiple `store.mindtick` files work in a folder structure.
 
 
 <!-- ![example mindtick subdir behavior](readme_assets/mindtick_subdir.gif){: width="200"} -->
-<img src="readme_assets/mindtick_subdir.gif" style="width:400px">
+<img src="readme_assets/mindtick_subdir.gif" style="width:800px">
 
 Example initializing and writing a `win` message
 
