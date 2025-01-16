@@ -13,6 +13,42 @@ When you run a `mindtick` command, the tool searches for the `store.mindtick` fi
 
 NOTE: The ANSI colors only work in terminals that support it, if you were to use this with Windows Powershell or Command Prompt you will see the ANSI escape codes as plaintext. So I recommend to not do this on windows or use another terminal! (Works great in the integrated vscode terminal on all OS's)
 
+## Examples
+Basic usage:
+```bash
+mindtick win -finally fixed that nasty bug
+mindtick note -remember to update dependencies
+mindtick view week          # show all messages from last 7 days
+mindtick view task month    # show only tasks from the last month
+mindtick view yesterday fix # show only fixes since yesterday - notice how the order doesn't matter
+mindtick view win           # show only win messages
+```
+
+Demonstration of sub directory behavior:
+
+Note how you can access the parent `store.mindtick` in a sub directory  
+and how having multiple `store.mindtick` files work in a folder structure.
+
+
+<!-- ![example mindtick subdir behavior](readme_assets/mindtick_subdir.gif){: width="200"} -->
+<img src="readme_assets/mindtick_subdir.gif" style="width:400px">
+
+Example initializing and writing a `win` message
+
+<!-- ![example mindtick win -Hello world!](readme_assets/winmsg.png){: width="600"} -->
+<img src="readme_assets/winmsg.png" style="width:400px">
+
+Example usages of `mindtick view`
+
+<!-- ![example mindtick view](readme_assets/view_task.png){: width="600"} -->
+<img src="readme_assets/view_task.png" style="width:400px">
+
+`mindtick tags`
+
+<!-- ![all available tags](readme_assets/tags.png){: width="600"} -->
+<img src="readme_assets/tags.png" style="width:400px">
+
+
 ## Installation
 
 Make sure you have the most recent version of go installed *(1.23.4 at the time of writing)*
@@ -69,28 +105,6 @@ Available time ranges for filtering:
 - `week` - Show messages from the last 7 days
 - `month` - Show messages from the last month
 
-## Examples
-Basic usage:
-```bash
-mindtick win -finally fixed that nasty bug
-mindtick note -remember to update dependencies
-mindtick view week          # show all messages from last 7 days
-mindtick view task month    # show only tasks from the last month
-mindtick view yesterday fix # show only fixes since yesterday - notice how the order doesn't matter
-mindtick view win           # show only win messages
-```
-
-Example initializing and writing a `win` message
-
-![example mindtick win -Hello world!](readme_assets/winmsg.png)
-
-Example usages of `mindtick view`
-
-![example mindtick view](readme_assets/view_task.png)
-
-`mindtick tags`
-
-![all available tags](readme_assets/tags.png)
 
 | Planned Features                              |                                                |
 |--------------------------------------|------------------------------------------------------------|
