@@ -85,9 +85,9 @@ func Tags() error {
 	sb.WriteString(helpLine("", messages.ColorizeStr("mindtick view tag", messages.BrightPurple)))
 	sb.WriteString(helpLine("", messages.ColorizeStr("mindtick view tag range", messages.BrightPurple)))
 	for _, tag := range messages.TagOrder {
-		sb.WriteString(helpLine(messages.Tags[tag], ""))
+		sb.WriteString(messages.Tags[tag] + " ")
 	}
-	fmt.Print(sb.String())
+	fmt.Println(sb.String())
 	return nil
 }
 
