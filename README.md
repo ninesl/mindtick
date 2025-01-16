@@ -6,7 +6,7 @@ All data is stored in a SQLite database file named `store.mindtick`, which is cr
 
 Each entry in the `store.mindtick` file is recorded with:
 - A **timestamp** (automatically generated).
-- A **message type** (`win`, `note`, `fix`, `task`).
+- A **message type** (`mindtick tags` to see all available tags).
 - The **message content** you provide.
 
 When you run a `mindtick` command, the tool searches for the `store.mindtick` file starting from your current directory and traversing up the directory tree. This means that you can use Mindtick from any subdirectory of your project, and the tool will always find and operate on the nearest `store.mindtick` file.
@@ -92,11 +92,9 @@ run `mindtick new` to create a new `store.mindtick` in your project's root direc
 | `ranges`  | Display all available time range options           |
 
 ### Tags
-Available tags for creating new messages or filtering:
-- `win`
-- `note`
-- `fix`
-- `task`
+Run `mindtick tags` to see all available tags for creating new messages or filtering:
+
+<img src="readme_assets/tags_all.png" style="width:400px" />
 
 ### Time Ranges
 Available time ranges for filtering:
@@ -113,5 +111,5 @@ Available time ranges for filtering:
 | `edit <id> <new message>`            | Edit an existing message by its ID.                        |
 | `{keyword}`                          | Filter messages by a specific keyword or substring.        |
 | `{YYYY-MM-DD}` | Filter messages by date.                           |
-
-I also am planning on implementing user-created tags and the ability to turn off color codes (for terminals that can't render it)
+| `global` | Have a system-wide mindtick thats stored with the binary |
+| `custom tags`| Have custom tags and colors. Custom config stored in the global `store.mindtick` |
