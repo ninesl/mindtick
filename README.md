@@ -43,12 +43,6 @@ Example usages of `mindtick view`
 <!-- ![example mindtick view](readme_assets/view_task.png){: width="600"} -->
 <img src="readme_assets/view_task.png" style="width:400px">
 
-`mindtick tags`
-
-<!-- ![all available tags](readme_assets/tags.png){: width="600"} -->
-<img src="readme_assets/tags.png" style="width:400px">
-
-
 ## Installation
 
 Make sure you have the most recent version of go installed *(1.23.4 at the time of writing)*
