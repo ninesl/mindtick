@@ -62,6 +62,7 @@ const (
 	TASK
 	URL
 	WORK
+	ALERT
 )
 
 // TODO: FIXME: refactor this mess when impl custom tags
@@ -71,42 +72,47 @@ const (
 // 3. Add a new constant to the bgs map
 // 4. Add a new constant to the StrToTag map
 var (
-	winTag   = ColorizeStr("  win", BrightGreenBg, Bold, White)
-	winBg    = ColorizeStr("     ", BrightGreenBg, Bold, White)
+	winTag   = ColorizeStr("  win", GreenBg, Bold, White)
+	winBg    = ColorizeStr("     ", GreenBg, Bold, White)
 	noteTag  = ColorizeStr(" note", CyanBg, Bold, White)
 	noteBg   = ColorizeStr("     ", CyanBg, Bold, White)
-	fixTag   = ColorizeStr("  fix", BrightYellowBg, Bold, White)
-	fixBg    = ColorizeStr("     ", BrightYellowBg, Bold, White)
+	fixTag   = ColorizeStr("  fix", BrightYellowBg, Bold, Black)
+	fixBg    = ColorizeStr("     ", BrightYellowBg, Bold, Black)
 	taskTag  = ColorizeStr(" task", BrightPurpleBg, Bold, White)
 	taskBg   = ColorizeStr("     ", BrightPurpleBg, Bold, White)
 	urlTag   = ColorizeStr("  url", BlackBg, Bold, Blue)
 	urlBg    = ColorizeStr("     ", BlackBg, Bold, Blue)
 	workTag  = ColorizeStr(" work", BrightWhiteBg, Bold, Black)
 	workBg   = ColorizeStr("     ", BrightWhiteBg, Bold, Black)
-	TagOrder = []Tag{WIN, NOTE, FIX, TASK, URL, WORK}
+	alertTag = ColorizeStr("ALERT", RedBg, Bold, White)
+	alertBg  = ColorizeStr("     ", RedBg, Bold, White)
+	TagOrder = []Tag{WIN, NOTE, FIX, TASK, URL, WORK, ALERT}
 	StrToTag = map[string]Tag{
-		"win":  WIN,
-		"note": NOTE,
-		"fix":  FIX,
-		"task": TASK,
-		"url":  URL,
-		"work": WORK,
+		"win":   WIN,
+		"note":  NOTE,
+		"fix":   FIX,
+		"task":  TASK,
+		"url":   URL,
+		"work":  WORK,
+		"alert": ALERT,
 	}
 	Tags = map[Tag]string{
-		WIN:  winTag,
-		NOTE: noteTag,
-		FIX:  fixTag,
-		TASK: taskTag,
-		URL:  urlTag,
-		WORK: workTag,
+		WIN:   winTag,
+		NOTE:  noteTag,
+		FIX:   fixTag,
+		TASK:  taskTag,
+		URL:   urlTag,
+		WORK:  workTag,
+		ALERT: alertTag,
 	}
 	bgs = map[Tag]string{
-		WIN:  winBg,
-		NOTE: noteBg,
-		FIX:  fixBg,
-		TASK: taskBg,
-		URL:  urlBg,
-		WORK: workBg,
+		WIN:   winBg,
+		NOTE:  noteBg,
+		FIX:   fixBg,
+		TASK:  taskBg,
+		URL:   urlBg,
+		WORK:  workBg,
+		ALERT: alertBg,
 	}
 )
 
